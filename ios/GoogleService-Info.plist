@@ -3,21 +3,21 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>9553239224-7ksj0kh5lr4ccapqfurappv2t18imbvg.apps.googleusercontent.com</string>
+	<string>520616702597-981k1imi0afbjdtfe9j3t8552ssb4v3d.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.9553239224-7ksj0kh5lr4ccapqfurappv2t18imbvg</string>
+	<string>com.googleusercontent.apps.520616702597-981k1imi0afbjdtfe9j3t8552ssb4v3d</string>
 	<key>API_KEY</key>
-	<string>AIzaSyDe8xhFeoZaLUnvGpdZbsTeNNL5MK16Fis</string>
+	<string>AIzaSyCZ10wi-z9fCunRMauWWRprJdp7Rjx4kZA</string>
 	<key>GCM_SENDER_ID</key>
-	<string>9553239224</string>
+	<string>520616702597</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.joshuatabakhoff.teamcook</string>
 	<key>PROJECT_ID</key>
-	<string>teamcook-app-pj</string>
+	<string>teamcookapp</string>
 	<key>STORAGE_BUCKET</key>
-	<string>teamcook-app-pj.appspot.com</string>
+	<string>teamcookapp.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -29,8 +29,8 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:9553239224:ios:615f0d0ad53229c804a84d</string>
+	<string>1:520616702597:ios:7c87b68806734db2d42fec</string>
 	<key>DATABASE_URL</key>
-	<string>https://teamcook-app-pj.firebaseio.com</string>
+	<string>https://teamcookapp.firebaseio.com</string>
 </dict>
 </plist>

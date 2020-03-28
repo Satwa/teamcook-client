@@ -1,35 +1,42 @@
 {
   "project_info": {
-    "project_number": "9553239224",
-    "firebase_url": "https://teamcook-app-pj.firebaseio.com",
-    "project_id": "teamcook-app-pj",
-    "storage_bucket": "teamcook-app-pj.appspot.com"
+    "project_number": "520616702597",
+    "firebase_url": "https://teamcookapp.firebaseio.com",
+    "project_id": "teamcookapp",
+    "storage_bucket": "teamcookapp.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:9553239224:android:4fbf049bd769574304a84d",
+        "mobilesdk_app_id": "1:520616702597:android:5a05d876a3a01542d42fec",
         "android_client_info": {
           "package_name": "com.joshuatabakhoff.teamcook"
         }
       },
       "oauth_client": [
         {
-          "client_id": "9553239224-its2d5jkfs10t0ds3vmqro1o4nn7vad4.apps.googleusercontent.com",
+          "client_id": "520616702597-iaim274ptb1dqd3ar28f4kb2j6t5mpgl.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAQOUIKiDWfcyJ0YSZrx4eZK9dUdeGITAQ"
+          "current_key": "AIzaSyDuxPEx9X7myO1n1Qcg2bfsuJsE1sLIG-U"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "9553239224-its2d5jkfs10t0ds3vmqro1o4nn7vad4.apps.googleusercontent.com",
+              "client_id": "520616702597-iaim274ptb1dqd3ar28f4kb2j6t5mpgl.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "520616702597-981k1imi0afbjdtfe9j3t8552ssb4v3d.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.joshuatabakhoff.teamcook"
+              }
             }
           ]
         }
