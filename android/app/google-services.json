@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "9553239224",
+    "firebase_url": "https://teamcook-app-pj.firebaseio.com",
+    "project_id": "teamcook-app-pj",
+    "storage_bucket": "teamcook-app-pj.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:9553239224:android:4fbf049bd769574304a84d",
+        "android_client_info": {
+          "package_name": "com.joshuatabakhoff.teamcook"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "9553239224-its2d5jkfs10t0ds3vmqro1o4nn7vad4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAQOUIKiDWfcyJ0YSZrx4eZK9dUdeGITAQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "9553239224-its2d5jkfs10t0ds3vmqro1o4nn7vad4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
