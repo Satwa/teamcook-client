@@ -102,7 +102,7 @@ export default class AppRenderer extends React.Component {
   }
 
   async loadToken() { // TODO: Need a try/catch here for currentUser being null
-    global.SolidAPI = null
+    global.SolidAPI = new SolidAPIService(null)
 
     const firebaseToken = await firebase.auth().currentUser.getIdToken()
 

@@ -18,6 +18,7 @@ import ImagePicker from 'react-native-image-picker'
 import RadioSelector from '../components/RadioSelector'
 import MultiSelector from '../components/MultiSelector'
 import PrimaryButton from './components/PrimaryButton'
+import Loader from './components/Loader'
 import {styles, buttons, colors} from '../style'
 
 class SignInScreen extends React.Component {
@@ -29,7 +30,8 @@ class SignInScreen extends React.Component {
 
     state = {
         screen_width: Dimensions.get('window').width,
-        birthdate: Date.now()
+        birthdate: Date.now(),
+        loading: false
     }
 
     constructor(props) {
@@ -50,6 +52,7 @@ class SignInScreen extends React.Component {
                 label: "Username",
                 allowMultilines: false,
                 slug: "username",
+                autocapitalize: false,
                 validated: false,
                 onChangeText: (text) => {
                     if(text.length === 0 || text.length == 1 && text[0] !== "@"){
@@ -77,6 +80,7 @@ class SignInScreen extends React.Component {
     render() {
         return (
             <SafeAreaView style={styles.container}>
+                <Loader loading={this.state.loading} />
                 <Text style={[styles.title, colors.title, { padding: 10}]}>Sign up</Text>
                 <FlatList
                     showsHorizontalScrollIndicator={false}
@@ -114,6 +118,7 @@ class SignInScreen extends React.Component {
                         placeholderTextColor={colors.text.color}
                         style={styles.inputfield}
                         value={this.state[item.slug]}
+                        autoCapitalize={ !item.autocapitalize ? "none" : null }
                         onSubmitEditing={this._validateInput.bind(this)}
                         returnKeyType="next"
                     />
@@ -237,7 +242,7 @@ class SignInScreen extends React.Component {
         if(!isCompleted){
             Alert.alert(
                 'Error',
-                "Please fill all fields before submitting",
+                "Please fill all fields before submitting and make sure your username is at least 3 characters long.",
                 [
                     {text: 'OK', onPress: null},
                 ],
@@ -245,41 +250,32 @@ class SignInScreen extends React.Component {
             )
         }else{
             // All fields are completed, go ahead
-            console.log("go ahead")
+            this.setState({ loading: true })
+            global.SolidAPI.userUsernameAvailable(this.state.username)
+                .then((available) => {
+                    this.setState({ loading: false })
 
-            // TODO: Check if username is available on server
-
-            // this.props.navigation.navigate("PhoneAuth", {
-            //     shouldAccountExist: false,
-            //     data: {
-            //         ...this.state,
-            //         profile_picture: this.state.profile_picture ? this.state.profile_picture.uri : null,
-            //     }
-            // })
+                    if(available){
+                        this.props.navigation.navigate("PhoneAuth", {
+                            shouldAccountExist: false,
+                            data: {
+                                ...this.state,
+                                profile_picture: this.state.profile_picture ? this.state.profile_picture.uri : null,
+                            }
+                        })
+                    }else{
+                        Alert.alert(
+                            'Error',
+                            "Sadly, this username is already taken :( Pick another one!",
+                            [
+                                {text: 'OK', onPress: null},
+                            ],
+                            {cancelable: false},
+                        )
+                    }
+                })
+                .catch((err) => console.error(err))
         }
-
-
-
-        console.log(this.state)
-        // if(this.state)
-
-        // if(this.state.step + 1 >= this.fields.length) {
-        //     this.props.navigation.navigate("PhoneAuth", {
-        //         shouldAccountExist: false,
-        //         data: {
-        //             ...this.state,
-        //             profile_picture: this.state.profile_picture ? this.state.profile_picture.uri : null,
-        //         }
-        //     })
-        // } else {
-        //     this.stepsRef.scrollToIndex({
-        //         animated: true,
-        //         index: this.state.step + 1
-        //     })
-        //     this.setState({
-        //         step: (this.state.step + 1)
-        //     })
-        // }
     }
 
     // _openImagePicker(item) {

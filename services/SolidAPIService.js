@@ -20,8 +20,26 @@ export default class SolidAPIService {
             })
 
             const res = await req.json()
-
             return !res.error ? res[id] : false
+        } catch(err) {
+            console.error(err)
+            return false
+        }
+    }
+
+    userUsernameAvailable = async (username) => {
+        try {
+            const req = await fetch(`${this.ROOT}/check/username/${username}`, {
+                // method: "GET",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+
+            const res = await req.json()
+
+            return !res.error ? res : false
         } catch(err) {
             console.error(err)
             return false
