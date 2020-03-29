@@ -1026,7 +1026,7 @@ export default class PhoneAuthScreen extends React.Component {
 
                 const userExists = await global.SolidAPI.userExists(user.uid)
                 const userVariables = this.props.navigation.getParam("data")
-                let profilePicturePromise = null
+                let profilePicturePromise = []
 
                 if(!userExists && !this.props.navigation.getParam("shouldAccountExist")) {
                     // no user found and account shouldn't exist (= create user, import pictures if hugger)
@@ -1038,23 +1038,23 @@ export default class PhoneAuthScreen extends React.Component {
                     global.SolidAPI.userSignUp({
                         authID: user.uid,
                         username: userVariables.username,
-                        display_name: userVariables.display_name,
+                        displayname: userVariables.displayname,
                         picture: "",
                         // birthdate: userVariables.birthdate,
                     })
 
                     if(userVariables.profile_picture) {
-                        profilePicturePromise = firebase
+                        profilePicturePromise.push(firebase
                             .storage()
                             .ref(`identities/${user.uid}/profile_picture`)
-                            .putFile(userVariables.profile_picture)
+                            .putFile(userVariables.profile_picture))
                     }
 
                     // AsyncStorage: save token
                     const userData = {
                         uid: user.uid,
                         username: userVariables.username,
-                        display_name: userVariables.display_name,
+                        displayname: userVariables.displayname,
                         // birthdate: userVariables.birthdate,
                     }
 
@@ -1087,7 +1087,7 @@ export default class PhoneAuthScreen extends React.Component {
                     const userData = {
                         uid: user.uid,
                         username: fetchedUser.username,
-                        display_name: fetchedUser.display_name,
+                        displayname: fetchedUser.displayname,
                         // birthdate: fetchedUser.birthdate,
                     }
                     console.log(userData)

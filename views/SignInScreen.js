@@ -43,7 +43,7 @@ class SignInScreen extends React.Component {
                 fieldtype: "textinput",
                 label: "Name",
                 allowMultilines: false,
-                slug: "display_name",
+                slug: "displayname",
                 validated: false
             },
             {

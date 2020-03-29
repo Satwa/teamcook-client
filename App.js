@@ -82,14 +82,14 @@ class AuthLoadingScreen extends React.Component {
 //
 
 const App = createAppContainer(
-  createSwitchNavigator({
-    AuthLoading: AuthLoadingScreen,
-    App: AppStack,
-    Auth: AuthStack,
-  }, {
-    initialRouteName: 'AuthLoading',
-  }
-  ))
+	createSwitchNavigator({
+    	AuthLoading: AuthLoadingScreen,
+    	App: AppStack,
+    	Auth: AuthStack,
+  	}, {
+    	initialRouteName: 'AuthLoading',
+  	}
+))
 
 
 export default class AppRenderer extends React.Component {

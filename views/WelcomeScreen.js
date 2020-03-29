@@ -35,7 +35,7 @@ class WelcomeScreen extends React.Component {
                         />
                         <SecondaryButton 
                             onPress={this._goToPhoneAuth}
-                            text="Back to the future? Sign in!"
+                            text="Already signed up? Sign in!"
                         />
                     </View>
                 </ScrollView>
@@ -53,4 +53,4 @@ class WelcomeScreen extends React.Component {
     }
 }
 
-export default WelcomeScreen;
+export default WelcomeScreen

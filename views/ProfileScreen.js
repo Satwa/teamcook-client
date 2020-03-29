@@ -10,11 +10,13 @@ import {
 } from 'react-native'
 import SafeAreaView from 'react-native-safe-area-view';
 import AsyncStorage from '@react-native-community/async-storage'
-import Slider from '@react-native-community/slider'
-import ImagePicker from 'react-native-image-picker'
-import SpriteSheet from 'rn-sprite-sheet'
-import firebase from 'react-native-firebase'
+// import Slider from '@react-native-community/slider'
+// import ImagePicker from 'react-native-image-picker'
+// import SpriteSheet from 'rn-sprite-sheet'
+// import firebase from 'react-native-firebase'
 import {withSocketContext} from '../providers/SocketProvider'
+import SecondaryButton from './components/SecondaryButton';
+import {styles} from '../style';
 
 class ProfileScreen extends React.Component {
     static navigationOptions = {
@@ -56,35 +58,35 @@ class ProfileScreen extends React.Component {
 
     render() {
         return (
-            <SafeAreaView style={{alignItems: "center", flex: 1, justifyContent: "center"}} >
-                <Text style={{fontSize: 26, color: 'black', textAlign: "center", marginBottom: 30}}>{this.state.user.name} est un {this.state.user.type}</Text>
+            <SafeAreaView style={[styles.container]}>
+                <Text style={[styles.text, styles.textCenter]}>{this.state.user.displayname} ({this.state.user.username})</Text>
                 {/* <Image source={{uri: this.state.user.picture}} style={{height: 300, width: 300, borderRadius: 150, marginBottom: 30}} /> */}
-                <Button color='#000000' title="Changer ma photo de profil" onPress={() => this._openImagePicker()} />
-                <Button color='#F70505' title="Déconnexion" onPress={() => {AsyncStorage.clear(); this.props.navigation.navigate("Auth")}} />
+                {/* <Button color='#000000' title="Changer ma photo de profil" onPress={() => this._openImagePicker()} /> */}
+                <SecondaryButton text="Déconnexion" onPress={() => {AsyncStorage.clear(); this.props.navigation.navigate("Auth")}} />
             </SafeAreaView>
         )
     }
 
-    _openImagePicker() {
-        ImagePicker.showImagePicker({title: "Changer ma photo de profil"}, (response) => {
-            if(response.didCancel) {
-                console.log("Action annulée par l'utilisateur")
-            } else if(response.error) {
-                console.log('Erreur ImagePicker : ', response.error)
-            } else if(response.customButton) {
-                console.log('Custom button: ', response.customButton)
-            } else {
-                const update = {user: this.state.user}
-                update.user.picture = response.uri
-                this.setState(update)
+    // _openImagePicker() {
+    //     ImagePicker.showImagePicker({title: "Changer ma photo de profil"}, (response) => {
+    //         if(response.didCancel) {
+    //             console.log("Action annulée par l'utilisateur")
+    //         } else if(response.error) {
+    //             console.log('Erreur ImagePicker : ', response.error)
+    //         } else if(response.customButton) {
+    //             console.log('Custom button: ', response.customButton)
+    //         } else {
+    //             const update = {user: this.state.user}
+    //             update.user.picture = response.uri
+    //             this.setState(update)
 
-                firebase
-                    .storage()
-                    .ref(`profile_pictures/${this.state.user.uid}`)
-                    .putFile(response.uri)
-            }
-        })
-    }
+    //             firebase
+    //                 .storage()
+    //                 .ref(`profile_pictures/${this.state.user.uid}`)
+    //                 .putFile(response.uri)
+    //         }
+    //     })
+    // }
 }
 
 export default withSocketContext(ProfileScreen)

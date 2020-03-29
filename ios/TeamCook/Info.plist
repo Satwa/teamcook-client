@@ -29,7 +29,7 @@
 			<string>firebase</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.Hugger</string>
+				<string>com.joshuatabakhoff.teamcook</string>
 			</array>
 		</dict>
 		<dict>
@@ -37,7 +37,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.9553239224-7ksj0kh5lr4ccapqfurappv2t18imbvg</string>
+				<string>com.googleusercontent.apps.520616702597-981k1imi0afbjdtfe9j3t8552ssb4v3d</string>
 			</array>
 		</dict>
 	</array>
@@ -58,18 +58,19 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>$(PRODUCT_NAME) needs access to your camera to allow you to customize your profile.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>${PRODUCT_NAME} requires your location in order to improve the information displayed. We will never use it to harm you.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>$(PRODUCT_NAME) requires access to your microphone for videos (and never to listen to you without your knowledge!)</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>$(PRODUCT_NAME) would like to save pictures in your gallery.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>${PRODUCT_NAME} needs access to your photos and allow you to select what you need!</string>
-	<key>NSCameraUsageDescription</key>
-    <string>$(PRODUCT_NAME) needs access to your camera to allow you to customize your profile.</string>
-    <key>NSPhotoLibraryAddUsageDescription</key>
-    <string>$(PRODUCT_NAME) would like to save pictures in your gallery.</string>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>$(PRODUCT_NAME) requires access to your microphone for videos (and never to listen to you without your knowledge!)</string>
 	<key>UIBackgroundModes</key>
 	<array>
+		<string>processing</string>
 		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>

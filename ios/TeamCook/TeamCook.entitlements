@@ -6,7 +6,7 @@
 	<string>development</string>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>applinks:teamcook-app.page.link</string>
+		<string>applinks:teamcookapp.page.link</string>
 	</array>
 </dict>
 </plist>
