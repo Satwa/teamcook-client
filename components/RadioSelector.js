@@ -23,7 +23,7 @@ export default class RadioSelector extends React.Component{
                         alignItems: 'center',
                     }, value.selected ? {
                         background: '#F70505',
-                        borderRadius: 30,
+                        borderRadius: 10,
                         height: 55,
                         width: 190,
                         justifyContent: "center",
@@ -32,7 +32,7 @@ export default class RadioSelector extends React.Component{
                         marginBottom: 25
                     } : {
                         borderColor: '#F70505',
-                        borderRadius: 30,
+                        borderRadius: 10,
                         height: 55,
                         width: 190,
                         justifyContent: "center",

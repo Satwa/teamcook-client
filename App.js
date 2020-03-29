@@ -22,7 +22,7 @@ import firebase from 'react-native-firebase';
 import SolidAPIService from './services/SolidAPIService'
 import AsyncStorage from '@react-native-community/async-storage';
 
-global.SERVER_URL = "http://localhost:5000"
+global.SERVER_URL = "http://localhost:3010"
 
 const AuthStack = createStackNavigator({
   Welcome: WelcomeScreen, 
@@ -73,7 +73,7 @@ class AuthLoadingScreen extends React.Component {
     return (
       <View>
         <ActivityIndicator />
-        <StatusBar barStyle="default" />
+        <StatusBar barStyle="light-content" />
       </View>
     )
   }

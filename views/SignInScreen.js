@@ -4,6 +4,7 @@ import {
     Text,
     Button,
     FlatList,
+    SafeAreaView,
     Dimensions,
     TextInput,
     Picker,
@@ -13,9 +14,11 @@ import {
     TouchableOpacity
 } from 'react-native'
 import DateTimePicker from '@react-native-community/datetimepicker'
+import ImagePicker from 'react-native-image-picker'
 import RadioSelector from '../components/RadioSelector'
 import MultiSelector from '../components/MultiSelector'
-import ImagePicker from 'react-native-image-picker'
+import PrimaryButton from './components/PrimaryButton'
+import {styles, buttons, colors} from '../style'
 
 class SignInScreen extends React.Component {
     static navigationOptions = {
@@ -25,7 +28,6 @@ class SignInScreen extends React.Component {
     // TODO: Afficher les points de suivi d'écran
 
     state = {
-        step: 0,
         screen_width: Dimensions.get('window').width,
         birthdate: Date.now()
     }
@@ -35,78 +37,61 @@ class SignInScreen extends React.Component {
 
         this.fields = [
             {
-                name: "Username",
+                name: "John",
                 fieldtype: "textinput",
-                label: "What username would you like?",
+                label: "Name",
                 allowMultilines: false,
-                slug: "username"
+                slug: "display_name",
+                validated: false
             },
             {
-                name: "Name",
+                name: "@john",
                 fieldtype: "textinput",
-                label: "What's your nickname?",
+                label: "Username",
                 allowMultilines: false,
-                slug: "display_name"
+                slug: "username",
+                validated: false,
+                onChangeText: (text) => {
+                    if(text.length === 0 || text.length == 1 && text[0] !== "@"){
+                        this.setState({
+                            username: "@" + text
+                        })
+                    }
+                }
             },
-            {
-                name: "Age",
-                fieldtype: "datetimepicker",
-                label: "What's your birthdate? (must be over 13 years old)",
-                slug: "birthdate"
-            },
-            {
-                name: "Availability",
-                fieldtype: "radio",
-                label: "How would you like to appear on your first connection?", // WIP
-                values: [{label: "Disponible", slug: "available"}, {label: "Absent", slug: "absent"}, {label: "Occupé (ne pas déranger)", slug: "do-not-disturb"}, {label: "Invisible", slug: "ghost"}],
-                slug: "availability"
-            },
-            {
-                name: "Statut",
-                fieldtype: "textinput",
-                label: "How's your mood?", // WIP
-                allowMultilines: false,
-                slug: "status"
-            },
-            {
-                name: "Selfie",
-                fieldtype: "fileupload",
-                label: "Pick a profile picture!",
-                slug: "profile_picture"
-            }
+            // {
+            //     name: "Birthdate",
+            //     fieldtype: "datetimepicker",
+            //     label: "Birthdate", // must be over 13
+            //     slug: "birthdate"
+            // },
+            // {
+            //     name: "Selfie",
+            //     fieldtype: "fileupload",
+            //     label: "Pick a profile picture!",
+            //     slug: "profile_picture"
+            // }
         ]
     }
 
     render() {
         return (
-            <View style={{flex: 1, paddingBottom: 120, alignItems: ''}}>
+            <SafeAreaView style={styles.container}>
+                <Text style={[styles.title, colors.title, { padding: 10}]}>Sign up</Text>
                 <FlatList
-                    horizontal
                     showsHorizontalScrollIndicator={false}
-                    scrollEnabled={false}
                     data={this.fields}
-                    ref={ref => this.stepsRef = ref}
                     keyExtractor={item => item.slug}
-                    style={{flex: 1}}
+                    style={{ padding: 10 }}
                     renderItem={({item, index}) => (
-                        <View style={{width: this.state.screen_width, justifyContent: 'space-evenly'}}>
-                            <View>
-                                <Text style={{color: '#000000', fontSize: 25, textAlign: 'center', marginBottom: 30}} >{item.label}</Text>
-                                {this._renderField(item)}
-                            </View>
-                            {/* <Text>{ this.state[item.slug] }</Text> */}
+                        <View>
+                            <Text style={[styles.text, colors.text, !item.validated ? styles.invalid : null ]}>{item.label}</Text>
+                            {this._renderField(item)}
                         </View>
-                    )
-
-                    }
+                    )}
                 />
-                <TouchableOpacity
-                    onPress={this._validateInput.bind(this)}
-                    style={{backgroundColor: '#F70505', borderRadius: 30, height: 50, width: 170, justifyContent: "center", alignSelf: 'center'}}
-                >
-                    <Text style={{color: 'white', fontSize: 20, textAlign: 'center'}} >Suivant</Text>
-                </TouchableOpacity>
-            </View>
+                <PrimaryButton onPress={this._validateInput.bind(this)} text="Next" />
+            </SafeAreaView>
         );
     }
 
@@ -119,12 +104,16 @@ class SignInScreen extends React.Component {
                             const update = {}
                             update[item.slug] = text
                             this.setState(update)
-
+                            if(item.onChangeText !== undefined){
+                                item.onChangeText(text)
+                            }
                         }}
                         autoCorrect={false}
                         multiline={item.allowMultilines}
                         placeholder={item.name}
-                        style={{alignSelf: 'center', backgroundColor: 'white', borderWidth: 2, borderColor: '#F70505', borderRadius: 20, width: 200, height: 60, textAlign: 'center', fontSize: 20}}
+                        placeholderTextColor={colors.text.color}
+                        style={styles.inputfield}
+                        value={this.state[item.slug]}
                         onSubmitEditing={this._validateInput.bind(this)}
                         returnKeyType="next"
                     />
@@ -154,7 +143,7 @@ class SignInScreen extends React.Component {
                     style={{}}
                 />
             case 'picker':
-                if(item.allowMultipleValues) {
+                if(item.allowMultipleValues) { // style not updated from Hugger
                     return (
                         <MultiSelector
                             values={item.values}
@@ -168,9 +157,8 @@ class SignInScreen extends React.Component {
                         />
                     )
                 } else {
-                    return (
+                    return ( // Style not updated from Hugger
                         <Picker
-
                             selectedValue={this.state[item.slug]}
                             onValueChange={(value, index) => {
                                 const update = {}
@@ -189,7 +177,7 @@ class SignInScreen extends React.Component {
                         </Picker>
                     )
                 }
-            case 'fileupload':
+            case 'fileupload': // Style not updated from Hugger
                 if(item.multiplicator && item.multiplicator > 1) {
                     return (
                         <View style={{
@@ -221,7 +209,6 @@ class SignInScreen extends React.Component {
                             <Image source={this.state[item.slug]} style={{height: 100, width: 100}} />
                             <TouchableOpacity
                                 onPress={() => this._openImagePicker(item)}
-
                                 style={{marginBottom: 40, alignSelf: 'center', backgroundColor: 'white', borderWidth: 1, borderColor: '#000000', borderRadius: 15, width: 160, height: 37, justifyContent: 'center'}}>
                                 <Text style={{color: '#000000', fontSize: 15, textAlign: 'center', alignSelf: 'center'}} >Ajouter une image</Text>
                             </TouchableOpacity>
@@ -229,68 +216,89 @@ class SignInScreen extends React.Component {
                     )
                 }
             default:
-                return <Text>Unhandled yet.</Text>
+                return <Text>Not handled yet.</Text>
         }
     }
 
     _validateInput() {
-        // TODO: validate input at each step to be sure
-
-        let currentField = this.fields[this.state.step].slug
-
-        console.log(`Current state of slug ${currentField}: ${this.state[currentField]}`)
-
-        if(currentField == "idCard") {
-            currentField = "idCardRecto"
-        }
-        if(this.state[currentField] === undefined) { // TODO: OR NULL (or invalid)
+        let isCompleted = true
+        this.fields.forEach((field) => {
+            const fieldExists = this.state[field.slug] !== undefined
+            if(fieldExists){
+                const fieldNotEmpty = field.slug === "username" ? this.state[field.slug].replace(/\s+/g, ' ').length > 2 : this.state[field.slug].replace(/\s+/g, ' ').length > 1
+                const fieldConformsToRegex = field.slug === "username" ? /^[A-Za-z0-9_]{3,10}$/.test(this.state[field.slug].substr(1)) : /^[a-zA-Z\u00C0-\u00FF ]*$/.test(this.state[field.slug].replace(/\s+/g, ' ').trim())
+                if(!fieldNotEmpty && !fieldConformsToRegex){
+                    isCompleted = false
+                }
+            }else{
+                isCompleted = false
+            }
+        })
+        if(!isCompleted){
             Alert.alert(
-                'Erreur',
-                "L'information saisie est invalide. Vérifies que tu n'as pas fait d'erreur !",
+                'Error',
+                "Please fill all fields before submitting",
                 [
                     {text: 'OK', onPress: null},
                 ],
                 {cancelable: false},
             )
-            return
+        }else{
+            // All fields are completed, go ahead
+            console.log("go ahead")
+
+            // TODO: Check if username is available on server
+
+            // this.props.navigation.navigate("PhoneAuth", {
+            //     shouldAccountExist: false,
+            //     data: {
+            //         ...this.state,
+            //         profile_picture: this.state.profile_picture ? this.state.profile_picture.uri : null,
+            //     }
+            // })
         }
 
-        if(this.state.step + 1 >= this.fields.length) {
-            this.props.navigation.navigate("PhoneAuth", {
-                shouldAccountExist: false,
-                data: {
-                    ...this.state,
-                    profile_picture: this.state.profile_picture ? this.state.profile_picture.uri : null,
-                }
-            })
-        } else {
-            this.stepsRef.scrollToIndex({
-                animated: true,
-                index: this.state.step + 1
-            })
-            this.setState({
-                step: (this.state.step + 1)
-            })
-        }
+
+
+        console.log(this.state)
+        // if(this.state)
+
+        // if(this.state.step + 1 >= this.fields.length) {
+        //     this.props.navigation.navigate("PhoneAuth", {
+        //         shouldAccountExist: false,
+        //         data: {
+        //             ...this.state,
+        //             profile_picture: this.state.profile_picture ? this.state.profile_picture.uri : null,
+        //         }
+        //     })
+        // } else {
+        //     this.stepsRef.scrollToIndex({
+        //         animated: true,
+        //         index: this.state.step + 1
+        //     })
+        //     this.setState({
+        //         step: (this.state.step + 1)
+        //     })
+        // }
     }
 
-    _openImagePicker(item) {
-        ImagePicker.showImagePicker({title: item.label}, (response) => {
-            if(response.didCancel) {
-                console.log("Action annulée par l'utilisateur")
-            } else if(response.error) {
-                console.log('Erreur ImagePicker : ', response.error)
-            } else if(response.customButton) {
-                console.log('Custom button: ', response.customButton)
-            } else {
-                const source = {uri: response.uri}
+    // _openImagePicker(item) {
+    //     ImagePicker.showImagePicker({title: item.label}, (response) => {
+    //         if(response.didCancel) {
+    //             console.log("Action annulée par l'utilisateur")
+    //         } else if(response.error) {
+    //             console.log('Erreur ImagePicker : ', response.error)
+    //         } else if(response.customButton) {
+    //             console.log('Custom button: ', response.customButton)
+    //         } else {
+    //             const source = {uri: response.uri}
 
-                const update = {}
-                update[item.slug] = source
-                this.setState(update)
-            }
-        })
-    }
+    //             const update = {}
+    //             update[item.slug] = source
+    //             this.setState(update)
+    //         }
+    //     })
+    // }
 }
 
 export default SignInScreen
