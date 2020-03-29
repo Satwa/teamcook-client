@@ -1,11 +1,18 @@
 import React from 'react'
-import {View, Button, Text, TextInput, Alert} from 'react-native'
+import {View, Button, Text, TextInput, Alert, SafeAreaView} from 'react-native'
 import firebase from 'react-native-firebase'
 import AsyncStorage from '@react-native-community/async-storage'
 import * as RNLocalize from "react-native-localize"
+import { styles, colors } from '../style'
+import Loader from './components/Loader'
+import SecondaryButton from './components/SecondaryButton'
 
 // Copied from https://rnfirebase.io/docs/v5.x.x/auth/phone-auth
 export default class PhoneAuthScreen extends React.Component {
+    static navigationOptions = {
+        header: null,
+    }
+    
     constructor(props) {
         super(props)
 
@@ -978,6 +985,7 @@ export default class PhoneAuthScreen extends React.Component {
             codeInput: '',
             phoneNumber: this.countries[RNLocalize.getLocales()[0].countryCode].code,
             confirmResult: null,
+            loading: false
         }
     }
     // TODO: remplacer les setState message par une Alert
@@ -1011,11 +1019,10 @@ export default class PhoneAuthScreen extends React.Component {
         const {codeInput, confirmResult} = this.state
 
         if(confirmResult && codeInput.length) {
+            this.setState({ loading: true })
             try {
                 const user = await confirmResult.confirm(codeInput)
-                this.setState({message: 'Code confirmed!', user: user})
-                // TODO: Activity Indicator
-
+                this.setState({message: 'Code confirmed!', user: user, loading: false})
 
                 const userExists = await global.SolidAPI.userExists(user.uid)
                 const userVariables = this.props.navigation.getParam("data")
@@ -1033,9 +1040,7 @@ export default class PhoneAuthScreen extends React.Component {
                         username: userVariables.username,
                         display_name: userVariables.display_name,
                         picture: "",
-                        status: userVariables.status,
-                        birthdate: userVariables.birthdate,
-                        availability: userVariables.availability, //busy, working, do not disturb, ghost mode..
+                        // birthdate: userVariables.birthdate,
                     })
 
                     if(userVariables.profile_picture) {
@@ -1050,18 +1055,16 @@ export default class PhoneAuthScreen extends React.Component {
                         uid: user.uid,
                         username: userVariables.username,
                         display_name: userVariables.display_name,
-                        status: userVariables.status,
-                        birthdate: userVariables.birthdate,
-                        availability: "available"
+                        // birthdate: userVariables.birthdate,
                     }
 
                     AsyncStorage.setItem("user", JSON.stringify(userData))
 
                     // Navigate to app
                     Promise.all(profilePicturePromise)
-                    .then(() => {
-                        this.props.navigation.navigate('App')
-                    })
+                        .then(() => {
+                            this.props.navigation.navigate('App')
+                        })
                 } else if(!userExists && this.props.navigation.getParam("shouldAccountExist")) {
                     // user doesn't exist but should (= missclick and should follow sign up process first)
                     Alert.alert(
@@ -1085,9 +1088,7 @@ export default class PhoneAuthScreen extends React.Component {
                         uid: user.uid,
                         username: fetchedUser.username,
                         display_name: fetchedUser.display_name,
-                        status: fetchedUser.status,
-                        birthdate: fetchedUser.birthdate,
-                        availability: fetchedUser.availability
+                        // birthdate: fetchedUser.birthdate,
                     }
                     console.log(userData)
 
@@ -1108,17 +1109,16 @@ export default class PhoneAuthScreen extends React.Component {
 
         return (
             <View style={{padding: 25}}>
-                <Text>Phone number</Text>
+                <Text style={[styles.text]}>Phone number</Text>
                 <TextInput
                     autoFocus
-                    style={{height: 40, marginTop: 15, marginBottom: 15}}
+                    style={[styles.inputfield]}
                     onChangeText={value => this.setState({phoneNumber: value})}
                     placeholder={'Numéro de téléphone '}
                     value={phoneNumber}
-                    color="#000"
                     keyboardType="number-pad"
                 />
-                <Button title="Confirm" onPress={this.signIn} />
+                <SecondaryButton text="Send" onPress={this.signIn} />
             </View>
         );
     }
@@ -1127,45 +1127,33 @@ export default class PhoneAuthScreen extends React.Component {
         const {codeInput} = this.state
 
         return (
-            <View style={{marginTop: 25, padding: 25}}>
-                <Text>Check verification code in your messages</Text>
+            <View style={{padding: 25}}>
+                <Text style={[styles.text]}>Check verification code in your messages</Text>
                 <TextInput
                     autoFocus
-                    style={{height: 40, marginTop: 15, marginBottom: 15}}
+                    style={[styles.inputfield]}
                     onChangeText={value => this.setState({codeInput: value})}
                     placeholder="123456"
                     value={codeInput}
-                    color="#000"
                     keyboardType="number-pad"
                 />
-                <Button title="Validate" onPress={this.confirmCode} />
+                <SecondaryButton text="Confirm" onPress={this.confirmCode} />
             </View>
-        );
+        )
     }
 
     render() {
         const {user, confirmResult} = this.state;
         return (
-            <View style={{flex: 1}}>
-                {!confirmResult && this.renderPhoneNumberInput()}
+            <SafeAreaView style={[styles.container]}>
+                <Loader loading={this.state.loading} />
+                <Text style={[styles.title, colors.title, { flex: 1, flexGrow: 1, padding: 10 }]}>Authentication</Text>
+                <View style={{ flex: 2, flexGrow: 2, justifyContent: 'flex-start' }}>
+                    {!confirmResult && this.renderPhoneNumberInput()}
 
-                {confirmResult && this.renderVerificationCodeInput()}
-
-                {user && (
-                    <View
-                        style={{
-                            padding: 15,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            flex: 1,
-                        }}
-                    >
-                        <Text style={{fontSize: 25}}>Signed In!</Text>
-                        <Text>{JSON.stringify(user)}</Text>
-                        <Button title="Sign out" color="red" onPress={this.signOut} />
-                    </View>
-                )}
-            </View>
+                    {confirmResult && this.renderVerificationCodeInput()}
+                </View>
+            </SafeAreaView>
         );
     }
 }
