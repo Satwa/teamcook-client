@@ -19,6 +19,9 @@ const styles = StyleSheet.create({
         fontSize: 37,
         fontWeight: 'bold',
     },
+    bold: {
+        fontWeight: 'bold'
+    },
     text: {
         fontSize: 22,
         color: colors.text.color,
@@ -39,6 +42,27 @@ const styles = StyleSheet.create({
         color: "#fff",
         fontSize: 18,
         padding: 5
+    },
+    card: {
+        width: '100%',
+        color: colors.text.color,
+        backgroundColor: '#fff', // background color to rgb
+        borderRadius: 10,
+        padding: 10,
+        height: 70,
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexDirection: 'row'
+    },
+    cardText: {
+        // color: "#FFFFFF",
+        color: colors.text.color,
+        fontSize: 20,
+        // marginTop: 20,
+        // marginBottom: 20,
+    },
+    cardTextDescription: {
+        fontSize: 18,
     }
 })
   

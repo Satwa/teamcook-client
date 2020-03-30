@@ -1008,11 +1008,14 @@ export default class PhoneAuthScreen extends React.Component {
 
     signIn = () => {
         const {phoneNumber} = this.state
-        this.setState({message: 'Sending code...'})
+        this.setState({message: 'Sending code...', loading: true})
 
         firebase.auth().signInWithPhoneNumber(phoneNumber)
-            .then(confirmResult => this.setState({confirmResult, message: 'Code has been sent!'}))
-            .catch(error => this.setState({message: `Error signing in: ${error.message}`}))
+            .then(confirmResult => this.setState({confirmResult, message: 'Code has been sent!', loading: false}))
+            .catch(error => {
+                console.log(error)
+                this.setState({message: `Error signing in: ${error.message}`, loading: false})
+            })
     }
 
     confirmCode = async () => {
@@ -1021,8 +1024,25 @@ export default class PhoneAuthScreen extends React.Component {
         if(confirmResult && codeInput.length) {
             this.setState({ loading: true })
             try {
-                const user = await confirmResult.confirm(codeInput)
-                this.setState({message: 'Code confirmed!', user: user, loading: false})
+                let user = null
+                try{
+                    user = await confirmResult.confirm(codeInput)
+                }catch(err){
+                    console.log(err)
+                    Alert.alert(
+                        'Information',
+                        "The verification code entered doesn't seem to be correct, we sent you a new one!",
+                        [
+                            {text: 'OK', onPress: () => { this.setState({loading: false}); this.signIn() } },
+                        ],
+                        {cancelable: false},
+                    )
+                    return
+                }
+                
+                if(user === null) return
+                
+                this.setState({message: 'Code confirmed!', user: user})
 
                 const userExists = await global.SolidAPI.userExists(user.uid)
                 const userVariables = this.props.navigation.getParam("data")
@@ -1063,7 +1083,12 @@ export default class PhoneAuthScreen extends React.Component {
                     // Navigate to app
                     Promise.all(profilePicturePromise)
                         .then(() => {
-                            this.props.navigation.navigate('App')
+                            firebase.auth().currentUser.getIdToken().then((token) => {
+                                global.SolidAPI.token = token
+                                this.setState({loading: false}, () => {
+                                    this.props.navigation.navigate('App')
+                                })
+                            })
                         })
                 } else if(!userExists && this.props.navigation.getParam("shouldAccountExist")) {
                     // user doesn't exist but should (= missclick and should follow sign up process first)
@@ -1071,7 +1096,7 @@ export default class PhoneAuthScreen extends React.Component {
                         'Error',
                         "Your account doesn't exist! Please try by signing up before :)",
                         [
-                            {text: 'OK', onPress: () => {this.props.navigation.navigate('SignIn')}},
+                            {text: 'OK', onPress: () => { this.setState({loading:false}); this.props.navigation.navigate('SignIn')}},
                         ],
                         {cancelable: false},
                     )
@@ -1095,7 +1120,10 @@ export default class PhoneAuthScreen extends React.Component {
                     AsyncStorage.setItem("user", JSON.stringify(userData))
 
                     // Navigate to app
-                    this.props.navigation.navigate('App')
+                    global.SolidAPI.token = await firebase.auth().currentUser.getIdToken()
+                    this.setState({loading: false}, () => {
+                        this.props.navigation.navigate('App')
+                    })
                 }
             } catch(error) {
                 this.setState({message: `Verification error: ${error.message}`})
@@ -1134,6 +1162,7 @@ export default class PhoneAuthScreen extends React.Component {
                     style={[styles.inputfield]}
                     onChangeText={value => this.setState({codeInput: value})}
                     placeholder="123456"
+                    maxLength={6}
                     value={codeInput}
                     keyboardType="number-pad"
                 />

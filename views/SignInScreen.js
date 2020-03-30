@@ -253,9 +253,8 @@ class SignInScreen extends React.Component {
             this.setState({ loading: true })
             global.SolidAPI.userUsernameAvailable(this.state.username)
                 .then((available) => {
-                    this.setState({ loading: false })
-
                     if(available){
+                        this.setState({loading: false})
                         this.props.navigation.navigate("PhoneAuth", {
                             shouldAccountExist: false,
                             data: {
@@ -266,9 +265,9 @@ class SignInScreen extends React.Component {
                     }else{
                         Alert.alert(
                             'Error',
-                            "Sadly, this username is already taken :( Pick another one!",
+                            "Sadly, this username is already taken \n Pick another one!",
                             [
-                                {text: 'OK', onPress: null},
+                                {text: 'OK', onPress: () => this.setState({loading: false})},
                             ],
                             {cancelable: false},
                         )

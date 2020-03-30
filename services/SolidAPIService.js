@@ -14,9 +14,6 @@ export default class SolidAPIService {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${this.token}`
                 },
-                // body: JSON.stringify({
-                //     uid: id
-                // })
             })
 
             const res = await req.json()
@@ -77,6 +74,66 @@ export default class SolidAPIService {
                 }
             })
             const res = await req.json()
+            console.log(res)
+
+            return res
+        } catch(err) {
+            console.error(err)
+            return false
+        }
+    }
+
+    userFriends = async () => {
+        try {
+            const req = await fetch(`${this.ROOT}/user/me/friends`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.token}`
+                }
+            })
+            const res = await req.json()
+
+            return res
+        } catch(err) {
+            console.error(err)
+            return false
+        }
+    }
+
+    userFind = async (username) => {
+        try {
+            const req = await fetch(`${this.ROOT}/user/find`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.token}`
+                },
+                body: JSON.stringify({ username: username })
+            })
+            const res = await req.json()
+            console.log(res)
+
+            return res
+        } catch(err) {
+            console.error(err)
+            return false
+        }
+    }
+
+    userFriendRequest = async (user_id, type = "new") => {
+        try {
+            const req = await fetch(`${this.ROOT}/user/friendrequest`, {
+                method: "POST",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.token}`
+                },
+                body: JSON.stringify({user_id: user_id, type: type})
+            })
+            const res = await req.json()
+            console.log(res)
 
             return res
         } catch(err) {

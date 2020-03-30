@@ -13,7 +13,7 @@ import {SocketProvider} from './providers/SocketProvider'
 // import TimelineScreen from './views/TimelineScreen'
 import ChatScreen from './views/ChatScreen'
 import ChatListScreen from './views/ChatListScreen'
-import ProfileScreen from './views/ProfileScreen'
+import FriendsScreen from './views/FriendsScreen'
 import SignInScreen from './views/SignInScreen'
 import WelcomeScreen from './views/WelcomeScreen'
 import Icon from './components/Icon'
@@ -22,7 +22,7 @@ import firebase from 'react-native-firebase';
 import SolidAPIService from './services/SolidAPIService'
 import AsyncStorage from '@react-native-community/async-storage';
 
-global.SERVER_URL = "http://localhost:3010"
+global.SERVER_URL = "http://192.168.1.13:3010"
 
 const AuthStack = createStackNavigator({
   Welcome: WelcomeScreen, 
@@ -30,8 +30,8 @@ const AuthStack = createStackNavigator({
   PhoneAuth: PhoneAuthScreen
 })
 const AppStack = createBottomTabNavigator({
-  ProfileScreen: {
-    screen: ProfileScreen,
+  FriendsScreen: {
+    screen: FriendsScreen,
     navigationOptions: {
       tabBarIcon: ({tintColor}) => <Icon name="profile" color={tintColor} />
     }
@@ -104,7 +104,7 @@ export default class AppRenderer extends React.Component {
   async loadToken() { // TODO: Need a try/catch here for currentUser being null
     global.SolidAPI = new SolidAPIService(null)
 
-    const firebaseToken = await firebase.auth().currentUser.getIdToken()
+	const firebaseToken = await firebase.auth().currentUser.getIdToken()
 
     global.SolidAPI = new SolidAPIService(firebaseToken)
 
