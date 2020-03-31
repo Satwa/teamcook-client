@@ -55,8 +55,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row'
     },
     cardText: {
-        // color: "#FFFFFF",
-        color: colors.text.color,
+        color: "#333",
+        // color: colors.text.color,
         fontSize: 20,
         // marginTop: 20,
         // marginBottom: 20,

@@ -104,6 +104,7 @@ export default class SolidAPIService {
     userFind = async (username) => {
         try {
             const req = await fetch(`${this.ROOT}/user/find`, {
+                method: "POST",
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
@@ -112,7 +113,6 @@ export default class SolidAPIService {
                 body: JSON.stringify({ username: username })
             })
             const res = await req.json()
-            console.log(res)
 
             return res
         } catch(err) {

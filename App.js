@@ -2,7 +2,7 @@ import React from 'react';
 import {
   ActivityIndicator,
   StatusBar,
-  View,
+  View
 } from 'react-native';
 import {createAppContainer, createSwitchNavigator} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
@@ -21,6 +21,8 @@ import PhoneAuthScreen from './views/PhoneAuthScreen';
 import firebase from 'react-native-firebase';
 import SolidAPIService from './services/SolidAPIService'
 import AsyncStorage from '@react-native-community/async-storage';
+import AddFriendScreen from './views/AddFriendScreen';
+import {colors} from './style';
 
 global.SERVER_URL = "http://192.168.1.13:3010"
 
@@ -30,32 +32,56 @@ const AuthStack = createStackNavigator({
   PhoneAuth: PhoneAuthScreen
 })
 const AppStack = createBottomTabNavigator({
-  FriendsScreen: {
-    screen: FriendsScreen,
-    navigationOptions: {
-      tabBarIcon: ({tintColor}) => <Icon name="profile" color={tintColor} />
-    }
-  },
-  ChatStack: createStackNavigator({
-    ChatListScreen: {screen: ChatListScreen},
-    ChatScreen: {screen: ChatScreen},
-  }, {
-    navigationOptions: {
-      tabBarIcon: ({tintColor}) => <Icon name="chat" color={tintColor} />,
-    }
-  })
-}, {
-  tabBarOptions: {
-    showLabel: false,
-    activeTintColor: '#e91590',
-    style: {
-      borderTopColor: "transparent",
-      textAlignVertical: 'center'
-    },
-    tabStyle: {
-      iconInsets: {top: 0, left: 0, bottom: 0, right: 0},
-    }
-  }
+	FriendStack: createStackNavigator({
+	  	FriendsScreen: {
+			screen: FriendsScreen,
+			navigationOptions: {
+				header: null
+			}
+	  	},
+	  	AddFriend: {
+			screen: AddFriendScreen,
+			navigationOptions: {
+				headerTintColor: colors.title.color,
+				headerStyle: {
+					borderBottomColor: colors.background.backgroundColor,
+					backgroundColor: colors.background.backgroundColor
+					// borderBottomColor: colors.text.color,
+					// backgroundColor: colors.text.color//colors.background.backgroundColor
+				},
+			}
+		},
+	}, {
+		navigationOptions: {
+			mode: 'modal',
+			// header: null,
+			headerTintColor: colors.secondary.color,
+			headerStyle: {
+				backgroundColor: colors.background.backgroundColor
+			},
+			tabBarIcon: ({tintColor}) => <Icon name="profile" color={tintColor} />,
+		}
+  	}),
+  	ChatStack: createStackNavigator({
+    	ChatListScreen: {screen: ChatListScreen},
+    	ChatScreen: {screen: ChatScreen},
+  	}, {
+    	navigationOptions: {
+      		tabBarIcon: ({tintColor}) => <Icon name="chat" color={tintColor} />,
+    	}
+  	})
+	}, {
+  	tabBarOptions: {
+    	showLabel: false,
+		activeTintColor: 'red',
+		style: {
+			borderTopColor: "transparent",
+			textAlignVertical: 'center'
+		},
+		tabStyle: {
+			iconInsets: {top: 0, left: 0, bottom: 0, right: 0},
+		}
+  	}
 })
 
 

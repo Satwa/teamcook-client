@@ -12,25 +12,25 @@ import {
 } from 'react-native'
 import SafeAreaView from 'react-native-safe-area-view';
 import AsyncStorage from '@react-native-community/async-storage'
-// import Slider from '@react-native-community/slider'
-// import ImagePicker from 'react-native-image-picker'
-// import SpriteSheet from 'rn-sprite-sheet'
-// import firebase from 'react-native-firebase'
+import SegmentedControlTab from "react-native-segmented-control-tab"
 import {withSocketContext} from '../providers/SocketProvider'
 import SecondaryButton from './components/SecondaryButton';
 import { colors, styles } from '../style';
 import {TouchableOpacity} from 'react-native-gesture-handler';
-import UserCard from './components/UserCard';
+import UserCard from './components/UserCard'
+import {Icon} from 'react-native-eva-icons'
 
 class FriendsScreen extends React.Component {
     static navigationOptions = {
         header: null,
+        headerMode: 'none'
     }
 
     state = {
         user: {},
         isRefreshing: false,
-        friends: []
+        friends: [],
+        selectedIndex: 0
     }
 
     componentDidMount() {
@@ -55,45 +55,95 @@ class FriendsScreen extends React.Component {
                 const friends = JSON.parse(data)
                 this.setState({
                     friends: friends === null ? [] : friends
+                }, () => {
+                    if(friends.length == 0){
+                        this._refreshFriendList()
+                    }
                 })
             })
     }
 
     render() {
-        console.log(typeof this.state.friends)
         return (
             <SafeAreaView style={[styles.container]}>
                 <Text style={[styles.text, styles.textCenter]}>{this.state.user.displayname} ({this.state.user.username})</Text>
+                <View style={{flex: 1}}>
+                    <SegmentedControlTab
+                        values={["My friends", "Pending requests"/*, "Search"*/]}
+                        selectedIndex={this.state.selectedIndex}
+                        onTabPress={this._onTabPress.bind(this)}
+                        tabsContainerStyle={{ padding: 10 }}
+                        tabStyle={{ color: colors.title.color, borderColor: colors.secondary.color, height: 35 }}
+                        tabTextStyle={{ color: colors.title.color }}
+                        activeTabStyle={{ backgroundColor: colors.secondary.color }}
+                        activeTabTextStyle={{ color: colors.title.color }}
+                    />
 
-                <FlatList
-                    data={ this.state.friends }
-                    keyExtractor={item => item.createdAt}
-                    onRefresh={this._refreshFriendList.bind(this)}
-                    refreshing={this.state.isRefreshing}
-                    style={{padding: 10}}
-                    renderItem={({item, index}) => {
-                        // if(item.user1 === this.state.user.uid && item.status == 0) return // Don't show pending request I sent
+                    { this.state.selectedIndex == 1 && (
+                        <SecondaryButton text="Add friend" onPress={() => {
+                            this.props.navigation.navigate("AddFriend", { friends: this.state.friends })
+                        }} />
+                    )}
 
-                        const friends = [item.friend_1, item.friend_2]
-                        const friend  = friends.find($0 => $0.authID !== this.state.user.uid)
+                    <FlatList
+                        data={ this.state.friends }
+                        keyExtractor={item => item.createdAt}
+                        onRefresh={this._refreshFriendList.bind(this)}
+                        refreshing={this.state.isRefreshing}
+                        style={{padding: 10}}
+                        renderItem={({item, index}) => {
+                            if(item.user1 === this.state.user.uid && item.status == 0) return // Don't show pending request I sent
+                            let icon
+                            if(this.state.selectedIndex == 0){
+                                icon = "chevron-right-outline"
+                                if(item.status == 0) return // Don't show pending request in My friends
+                            }else if(this.state.selectedIndex == 1){
+                                icon = "clock-outline"
+                                if(item.status == 1) return
+                                if(item.user1 === this.state.user.uid) return
+                            }
 
-                        return (
-                            <UserCard onPress={() => console.log("Pressed user card")}>
-                                <View>
-                                    <Text style={[styles.cardText, styles.bold]}>{friend.displayname}</Text>
-                                    <Text style={[styles.cardText, styles.cardTextDescription]}>{friend.username}</Text>
-                                </View>
-                                <View>
-                                    <Text style={[styles.cardText, styles.bold]}>[{item.status}]</Text>
-                                </View>
-                            </UserCard>
-                        )
-                    }}
-                />
+
+                            const friends = [item.friend_1, item.friend_2]
+                            const friend  = friends.find($0 => $0.authID !== this.state.user.uid)
+
+                            return (
+                                <UserCard onPress={() => {
+                                    if(item.status == 0){
+                                        // Accept or decline friendship request
+                                        Alert.alert(
+                                            'Friendship request',
+                                            `Would you like to have ${item.friend_2.displayname} (${item.friend_2.username}) as a friend?`,
+                                            [
+                                                {text: 'Yes', onPress: () => {this._acceptDeclineFriendship(friend.authID, "accept")} },
+                                                {text: 'Cancel', style: 'cancel'},
+                                                {text: 'No', onPress: () => {this._acceptDeclineFriendship(friend.authID, "decline")} },
+                                            ],
+                                            { cancelable: false }
+                                        )
+                                    }else{
+                                        // TODO: Go live
+                                    }
+                                }}>
+                                    <View>
+                                        <Text style={[styles.cardText, styles.bold]}>{friend.displayname}</Text>
+                                        <Text style={[styles.cardText, styles.cardTextDescription]}>{friend.username}</Text>
+                                    </View>
+                                    <View>
+                                        <Text style={[styles.cardText, styles.bold]}>
+                                            <Icon name={icon} width={28} height={28} fill={colors.secondary.color} />
+                                        </Text>
+                                    </View>
+                                </UserCard>
+                            )
+                        }}
+                    />
+                </View>
 
                 {/* <Image source={{uri: this.state.user.picture}} style={{height: 300, width: 300, borderRadius: 150, marginBottom: 30}} /> */}
                 {/* <Button color='#000000' title="Changer ma photo de profil" onPress={() => this._openImagePicker()} /> */}
-                <SecondaryButton text="Déconnexion" onPress={() => {AsyncStorage.clear(); this.props.navigation.navigate("Auth")}} />
+
+                {/* <SecondaryButton text="Déconnexion" onPress={() => {AsyncStorage.clear(); this.props.navigation.navigate("Auth")}} /> */}
             </SafeAreaView>
         )
     }
@@ -111,7 +161,6 @@ class FriendsScreen extends React.Component {
                 isRefreshing: false,
                 friends: friends
             })
-            console.log("refreshing")
         }catch(err){
             Alert.alert(
                 'Error',
@@ -122,7 +171,42 @@ class FriendsScreen extends React.Component {
                 {cancelable: false}
             )
         }
-        
+    }
+
+    async _acceptDeclineFriendship(user_id, type){
+        try {
+            const query = await global.SolidAPI.userFriendRequest(user_id, type)
+
+            const _friends = this.state.friends.slice()
+
+            const _index = _friends.findIndex($0 => $0.user2 == user_id)
+            if(type == "decline"){
+                _friends.splice(_index, 1)
+            }else{
+                _friends[_index].status = 1
+            }
+
+            this.setState({
+                isRefreshing: false,
+                friends: _friends
+            })
+        } catch(err) {
+            console.log(err)
+            Alert.alert(
+                'Error',
+                'Something wrong is happening on our side, please try again!',
+                [
+                    {text: 'OK', onPress: () => this.setState({isRefreshing: false})},
+                ],
+                {cancelable: false}
+            )
+        }
+    }
+
+    _onTabPress(tab){
+        this.setState({
+            selectedIndex: tab
+        })
     }
 
     // _openImagePicker() {

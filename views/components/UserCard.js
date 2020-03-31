@@ -16,6 +16,7 @@ export default class UserCard extends React.Component {
             <TouchableOpacity
                 onPress={this.props.onPress}
                 style={[styles.card, this.props.cardStyle]}
+                disabled={this.props.disabled ? true : false}
             >
                 { this.props.children }
             </TouchableOpacity>
