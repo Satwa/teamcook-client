@@ -1,3 +1,5 @@
+import * as RNLocalize from "react-native-localize"
+
 export default class SolidAPIService {
     constructor(userToken) {
         this.token = userToken
@@ -140,6 +142,62 @@ export default class SolidAPIService {
             console.error(err)
             return false
         }
+    }
+
+    recipeFind = async (keywords) => {
+        let platform = null
+        if(RNLocalize.getLocales()[0].countryCode == "FR"){
+            platform = "marmiton"
+        }else{
+            platform = "allrecipes"
+        }
+
+        try {
+            const req = await fetch(`${this.ROOT}/recipe/find`, {
+                method: "POST",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.token}`
+                },
+                body: JSON.stringify({platform: platform, arg: keywords})
+            })
+            const res = await req.json()
+            console.log(res)
+
+            return res
+        } catch(err) {
+            console.error(err)
+            return false
+        }        
+    }
+
+    recipeDetails = async (url) => {
+        let platform = null
+        if(RNLocalize.getLocales()[0].countryCode == "FR"){
+            platform = "marmiton"
+        }else{
+            platform = "allrecipes"
+        }
+
+        try {
+            const req = await fetch(`${this.ROOT}/recipe/details`, {
+                method: "POST",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.token}`
+                },
+                body: JSON.stringify({platform: platform, arg: url})
+            })
+            const res = await req.json()
+            console.log(res)
+
+            return res
+        } catch(err) {
+            console.error(err)
+            return false
+        }        
     }
 
 }

@@ -16,7 +16,6 @@ import SegmentedControlTab from "react-native-segmented-control-tab"
 import {withSocketContext} from '../providers/SocketProvider'
 import SecondaryButton from './components/SecondaryButton';
 import { colors, styles } from '../style';
-import {TouchableOpacity} from 'react-native-gesture-handler';
 import UserCard from './components/UserCard'
 import {Icon} from 'react-native-eva-icons'
 
@@ -49,6 +48,7 @@ class FriendsScreen extends React.Component {
                 this.setState({
                     user: user
                 })
+            //    global.SolidAPI.recipeDetails("https://www.allrecipes.com/recipe/213645/chicken-asparagus-roll-ups/") // debug
             }) 
         AsyncStorage.getItem("friends")
             .then((data) => {
@@ -56,6 +56,7 @@ class FriendsScreen extends React.Component {
                 this.setState({
                     friends: friends === null ? [] : friends
                 }, () => {
+                        console.log(friends) // TODO: in use here to fix because it causes "Tried to get frame for out of range index NaN"
                     if(friends.length == 0){
                         this._refreshFriendList()
                     }
