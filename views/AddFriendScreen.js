@@ -1,12 +1,7 @@
 import React from 'react'
 import {
-    ActivityIndicator,
-    StatusBar,
-    StyleSheet,
     View,
     FlatList,
-    Button,
-    Image,
     Text,
     TextInput,
     Alert,
@@ -14,8 +9,6 @@ import {
 } from 'react-native'
 import SafeAreaView from 'react-native-safe-area-view';
 import AsyncStorage from '@react-native-community/async-storage'
-import {withSocketContext} from '../providers/SocketProvider'
-import SecondaryButton from './components/SecondaryButton'
 import {colors, styles} from '../style'
 import {TouchableOpacity} from 'react-native-gesture-handler'
 import UserCard from './components/UserCard'
@@ -33,15 +26,6 @@ class AddFriendScreen extends React.Component {
     }
 
     componentDidMount() {
-        const {socket} = this.props
-        if(!!socket) {
-            if(socket.connected) {
-                // socket.emit('bbb')
-                // socket.on('aaa', () => { })
-            }
-            // TODO: Handle socket not being connected
-        }
-
         AsyncStorage.getItem("user")
             .then((data) => {
                 const user = JSON.parse(data)
@@ -124,11 +108,6 @@ class AddFriendScreen extends React.Component {
                         }}
                     />
                 </View>
-
-                {/* <Image source={{uri: this.state.user.picture}} style={{height: 300, width: 300, borderRadius: 150, marginBottom: 30}} /> */}
-                {/* <Button color='#000000' title="Changer ma photo de profil" onPress={() => this._openImagePicker()} /> */}
-
-                {/* <SecondaryButton text="Déconnexion" onPress={() => {AsyncStorage.clear(); this.props.navigation.navigate("Auth")}} /> */}
             </SafeAreaView>
         )
     }

@@ -48,7 +48,6 @@ class FriendsScreen extends React.Component {
                 this.setState({
                     user: user
                 })
-            //    global.SolidAPI.recipeDetails("https://www.allrecipes.com/recipe/213645/chicken-asparagus-roll-ups/") // debug
             }) 
         AsyncStorage.getItem("friends")
             .then((data) => {
@@ -123,7 +122,10 @@ class FriendsScreen extends React.Component {
                                             { cancelable: false }
                                         )
                                     }else{
-                                        // TODO: Go live
+                                        this.props.navigation.navigate("RecipesList", {
+                                            user: this.state.user,
+                                            friend: friend
+                                        })
                                     }
                                 }}>
                                     <View>

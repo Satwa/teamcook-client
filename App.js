@@ -23,6 +23,7 @@ import SolidAPIService from './services/SolidAPIService'
 import AsyncStorage from '@react-native-community/async-storage';
 import AddFriendScreen from './views/AddFriendScreen';
 import {colors} from './style';
+import RecipesListScreen from './views/RecipesListScreen';
 
 global.SERVER_URL = "http://192.168.1.13:3010"
 
@@ -46,8 +47,16 @@ const AppStack = createBottomTabNavigator({
 				headerStyle: {
 					borderBottomColor: colors.background.backgroundColor,
 					backgroundColor: colors.background.backgroundColor
-					// borderBottomColor: colors.text.color,
-					// backgroundColor: colors.text.color//colors.background.backgroundColor
+				},
+			}
+		},
+		RecipesList: {
+			screen: RecipesListScreen,
+			navigationOptions: {
+				headerTintColor: colors.title.color,
+				headerStyle: {
+					borderBottomColor: colors.background.backgroundColor,
+					backgroundColor: colors.background.backgroundColor
 				},
 			}
 		},

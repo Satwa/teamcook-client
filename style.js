@@ -49,10 +49,16 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff', // background color to rgb
         borderRadius: 10,
         padding: 10,
+        marginBottom: 40,
         height: 70,
         justifyContent: 'space-between',
         alignItems: 'center',
         flexDirection: 'row'
+    },
+    recipeCard: {
+        height: 100,
+        justifyContent: 'space-evenly',
+        flexDirection: 'column'
     },
     cardText: {
         color: "#333",
@@ -63,6 +69,9 @@ const styles = StyleSheet.create({
     },
     cardTextDescription: {
         fontSize: 18,
+    },
+    recipeCardTextDescription: {
+        marginTop: 20
     }
 })
   
