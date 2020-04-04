@@ -4,7 +4,7 @@ import React from 'react'
 const SocketContext = React.createContext(null)
 
 export class SocketProvider extends React.Component {
-    componentWillMount(){
+    componentDidMount(){
         this.props.socket.connect()
     }
     render() {

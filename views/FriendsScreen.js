@@ -29,7 +29,8 @@ class FriendsScreen extends React.Component {
         user: {},
         isRefreshing: false,
         friends: [],
-        selectedIndex: 0
+        selectedIndex: 0,
+        socketConnected: false
     }
 
     constructor(props){
@@ -56,23 +57,34 @@ class FriendsScreen extends React.Component {
                     }
                 })
             })
-
-        this._handleSockets()
+        this._connectSocket()
     }
 
-    _handleSockets(){
-        this.props.socket
-            .on("connect", (data) => console.log("connected to socket server"))
-            .on("requestForKitchen", (data) => {
-                // TODO: Ask before
-                console.log("req4kitchen")
-                this.props.navigation.navigate("LiveKitchen", {
-                    user: this.state.user,
-                    recipe: data.recipe,
-                    room_id: data.room_id,
-                    call_data: data.call_data,
+    componentDidUpdate(){
+        this._connectSocket()
+    }
+
+    _connectSocket(){
+        if(!!this.props.socket && !this.state.socketConnected) {
+            if(this.props.socket.connected) {
+                this.setState({
+                    socketConnected: true
                 })
-            })
+
+                this.props.socket
+                    .on("connect", (data) => console.log("connected to socket server"))
+                    .on("requestForKitchen", (data) => {
+                        // TODO: Ask before
+                        console.log("req4kitchen")
+                        this.props.navigation.navigate("LiveKitchen", {
+                            user: this.state.user,
+                            recipe: data.recipe,
+                            room_id: data.room_id,
+                            call_data: data.call_data,
+                        })
+                    })
+            }
+        }
     }
 
     render() {

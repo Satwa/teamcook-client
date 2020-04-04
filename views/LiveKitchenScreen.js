@@ -15,8 +15,7 @@ import {
     RTCView,
     MediaStream,
     MediaStreamTrack,
-    mediaDevices,
-    registerGlobals
+    mediaDevices
 } from 'react-native-webrtc'
 import {styles, colors} from '../style'
 import {withSocketContext} from '../providers/SocketProvider'
@@ -36,8 +35,17 @@ class LiveKitchenScreen extends React.Component{
         localStream: null
     }
 
-    configuration = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]}
-    peerConnection = new RTCPeerConnection(this.configuration)
+    constructor(props){
+        super(props)
+
+        this.peerConnection = new RTCPeerConnection({
+            iceServers: [
+                {urls: 'stun:stun.services.mozilla.com'},
+                {urls: 'stun:stun.l.google.com:19302'}
+            ]
+        })
+    }
+
 
     componentDidMount() {
         // TODO: Handle socket not being connected
@@ -53,65 +61,68 @@ class LiveKitchenScreen extends React.Component{
         // TODO: Check si recipe contient ou pas .ingredients & .steps
         // TODO: Loading modal qui affiche un msg d'avancement (Downloading recipe, Waiting for @user to connect, Waiting for @user to join the kitchen, Connecting...)
 
-        this._startLocalStream()
+        if(!!this.props.socket){
+            if(this.props.socket.connected){
+                this.props.socket.on("newUserInKitchen", (data) => {
+                    console.log("new user in kitchen")
+                    this.peerConnection.setRemoteDescription(new RTCSessionDescription(data.call_data)).catch((err) => console.log(err))
+                })
+                this.props.socket.on("kitchenNewCandidate", (data) => {
+                    this.peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate)).catch((err) => console.log(err))
+                })
+            }
+        }
 
-        this.props.socket.on("newUserInKitchen", (data) => {
-            console.log("new user in kitchen")
-            console.log(data)
-            this.peerConnection.setRemoteDescription(new RTCSessionDescription(data.call_data.sdp))
-            this.setState({
-                remoteStream: this.peerConnection.getRemoteStreams()[0].toURL()
-            })
-        })
-        this.props.socket.on("kitchenNewCandidate", (data) => {
-            this.peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate))
-        })
 
         const room_id = uuidv4()
 
-        if(!this.props.navigation.getParam("call_data")){ // There is not call_id param, this is the host
-            console.log("Host")
-            this.peerConnection.createOffer().then(description => {
-                this.peerConnection.setLocalDescription(description).then(() => {
-                    this.props.socket.emit("joinKitchen", {
-                        call_data: description, 
-                        room_id: room_id, 
-                        user_id: this.state.friend.authID, 
-                        recipe: this.state.recipe
+        this._startLocalStream().then(() => {
+            if(!this.props.navigation.getParam("call_data")){ // There is not call_id param, this is the host
+                console.log("Host")
+                this.peerConnection.createOffer().then(description => {
+                    this.peerConnection.setLocalDescription(description).then(() => {
+                        this.props.socket.emit("joinKitchen", {
+                            call_data: description, 
+                            room_id: room_id, 
+                            user_id: this.state.friend.authID, 
+                            recipe: this.state.recipe
+                        })
                     })
                 })
-            })
-        }else{ // Nothing is defined, this is an "invitee"
-            console.log("Invitee")
-            // Fetch from room
-            this.peerConnection.setRemoteDescription(new RTCSessionDescription(this.props.navigation.getParam("call_data"))).then(() => {
-                if(this.peerConnection.remoteDescription.type == "offer"){
-                    this.peerConnection.createAnswer((description) => {
-                        this.peerConnection.setLocalDescription(description).then(() => {
-                            console.log("setRemoteStream")
-                            this.setState({
-                                remoteStream: this.peerConnection.getRemoteStreams()[0].toURL()
-                            })
-                            this.props.socket.emit("joinKitchen", {
-                                call_data: description,
-                                room_id: this.props.navigation.getParam("room_id"),
-                                user_id: null,
-                                recipe: null
-                            })
+            }else{ // Nothing is defined, this is an "invitee"
+                console.log("Invitee")
+                // Fetch from room
+                this.peerConnection.setRemoteDescription(new RTCSessionDescription(this.props.navigation.getParam("call_data"))).then(() => {
+                    if(this.peerConnection.remoteDescription.type == "offer"){
+                        this.peerConnection.createAnswer().then((description) => {
+                            this.peerConnection.setLocalDescription(description).then(() => {
+                                this.props.socket.emit("joinKitchen", {
+                                    call_data: description,
+                                    room_id: this.props.navigation.getParam("room_id")
+                                })
+                            }).catch((err) => console.log(err))
                         }).catch((err) => console.log(err))
-                    }).catch((err) => console.log(err))
-                }  
-            }).catch((err) => console.log(err))
-        }
-
-        this.peerConnection.onicecandidate = (_event) => {
-            console.log("ice candidate")
-            socket.emit("kitchenNewCandidate", { 
-                candidate: _event.candidate, 
-                room_id: this.props.navigation.getParam("room_id") !== undefined ? this.props.navigation.getParam("room_id") : room_id
-            })
-            // _event.candidate
-        }
+                    }  
+                }).catch((err) => console.log(err))
+            }
+    
+            this.peerConnection.onicecandidate = (_event) => {
+                console.log("ice candidate")
+                socket.emit("kitchenNewCandidate", { 
+                    candidate: _event.candidate, 
+                    room_id: this.props.navigation.getParam("room_id") !== undefined ? this.props.navigation.getParam("room_id") : room_id
+                })
+                // _event.candidate
+            }
+            this.peerConnection.onaddstream = (_event) => {
+                console.log("adding stream")
+                if(_event.stream) {
+                    this.setState({
+                        remoteStream: _event.stream
+                    })
+                }
+            }
+        }).catch((err) => console.error(err))
     }
 
     componentWillUnmount() {
@@ -154,17 +165,17 @@ class LiveKitchenScreen extends React.Component{
                         style={{flex: 1}}
                         renderItem={({item, index}) => (
                             <View style={{ marginTop: '25%', justifyContent: 'center', alignItems: 'center' }}>
-                                <View
-                                    // onPress={this._onPress.bind(this)}
+                                <TouchableOpacity
+                                    onPress={() => console.log(this.peerConnection)}
                                     style={[styles.card, styles.recipeCard, {height: null, width: '95%'}]}
-                                    disabled
+                                    // disabled
                                 >
                                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                         <View style={{flex: 1}}>
                                             <Text style={[styles.cardText, styles.cardTextDescription]}>{item}</Text>
                                         </View>
                                     </View>
-                                </View>
+                                </TouchableOpacity>
 
                                 {index + 1 < this.state.recipe.steps.length && (
                                     <Icon name="arrowhead-down-outline" width={28} height={28} fill={colors.secondary.color} />
@@ -203,6 +214,8 @@ class LiveKitchenScreen extends React.Component{
                     this.setState({
                         localStream: stream
                     })
+                    this.peerConnection.addStream(stream)
+                    console.log("local stream ready")
                     // Got stream!
                 })
                 .catch(error => {
@@ -210,10 +223,6 @@ class LiveKitchenScreen extends React.Component{
                     // Log error
                 })
         })
-    }
-
-    async _createOffer(){
-
     }
 }
 

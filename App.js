@@ -2,7 +2,8 @@ import React from 'react';
 import {
   ActivityIndicator,
   StatusBar,
-  View
+  View, 
+  YellowBox
 } from 'react-native';
 import {createAppContainer, createSwitchNavigator} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
@@ -22,6 +23,8 @@ import RecipesListScreen from './views/RecipesListScreen';
 import LiveKitchenScreen from './views/LiveKitchenScreen';
 
 global.SERVER_URL = "http://192.168.1.13:3010"
+
+YellowBox.ignoreWarnings(['Unrecognized WebSocket connection'])
 
 const AuthStack = createStackNavigator({
   Welcome: WelcomeScreen, 
