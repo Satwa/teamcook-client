@@ -6,17 +6,12 @@ import {
 } from 'react-native';
 import {createAppContainer, createSwitchNavigator} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
-import {createBottomTabNavigator} from 'react-navigation-tabs';
 import io from 'socket.io-client'
 import {SocketProvider} from './providers/SocketProvider'
 
-// import TimelineScreen from './views/TimelineScreen'
-import ChatScreen from './views/ChatScreen'
-import ChatListScreen from './views/ChatListScreen'
 import FriendsScreen from './views/FriendsScreen'
 import SignInScreen from './views/SignInScreen'
 import WelcomeScreen from './views/WelcomeScreen'
-import Icon from './components/Icon'
 import PhoneAuthScreen from './views/PhoneAuthScreen';
 import firebase from 'react-native-firebase';
 import SolidAPIService from './services/SolidAPIService'
@@ -78,9 +73,8 @@ const AppStack = createStackNavigator({
 		headerTintColor: colors.secondary.color,
 		headerStyle: {
 			backgroundColor: colors.background.backgroundColor
-		},
-		tabBarIcon: ({tintColor}) => <Icon name="profile" color={tintColor} />,
-	},
+		}
+	}
 })
 
 
