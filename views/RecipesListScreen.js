@@ -111,8 +111,22 @@ class RecipesListScreen extends React.Component {
                                 <RecipeCard 
                                     recipe={item}
                                     onPress={() => {
-                                        // item.url => recipe url
                                         // this.state.friend => user to contact
+                                        if(!item.ingredients){
+                                            this._getRecipe(item).then(() => {
+                                                this.props.navigation.navigate("LiveKitchen", {
+                                                    user: this.state.user,
+                                                    friend: this.state.friend,
+                                                    recipe: this.state.recipes[this.state.recipes.findIndex($0 => $0.url == item.url)]
+                                                })
+                                            })
+                                        }else{
+                                            this.props.navigation.navigate("LiveKitchen", {
+                                                user: this.state.user,
+                                                friend: this.state.friend,
+                                                recipe: item
+                                            })
+                                        }
                                         console.log("Go to live")
                                     }} 
                                     onDetails={() => {

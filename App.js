@@ -24,6 +24,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import AddFriendScreen from './views/AddFriendScreen';
 import {colors} from './style';
 import RecipesListScreen from './views/RecipesListScreen';
+import LiveKitchenScreen from './views/LiveKitchenScreen';
 
 global.SERVER_URL = "http://192.168.1.13:3010"
 
@@ -60,6 +61,17 @@ const AppStack = createBottomTabNavigator({
 				},
 			}
 		},
+		LiveKitchen: {
+			screen: LiveKitchenScreen,
+			navigationOptions: { // Hide? Make view as a fullscreen modal?
+				mode: 'modal',
+				headerTintColor: colors.title.color,
+				headerStyle: {
+					borderBottomColor: colors.background.backgroundColor,
+					backgroundColor: colors.background.backgroundColor
+				},
+			}
+		}
 	}, {
 		navigationOptions: {
 			mode: 'modal',

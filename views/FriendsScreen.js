@@ -40,6 +40,7 @@ class FriendsScreen extends React.Component {
                 // socket.on('aaa', () => { })
             }
             // TODO: Handle socket not being connected
+            // TODO: Handle user contacting me socket
         }
 
         AsyncStorage.getItem("user")
