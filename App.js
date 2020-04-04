@@ -113,14 +113,16 @@ const App = createAppContainer(
 
 export default class AppRenderer extends React.Component {
   state = {
-    token: null
+	token: null,
+	socket: null
   }
 
   componentDidMount() {
-	this.loadToken()
+	this._loadToken()
+	this._connectSocket()
   }
 
-  async loadToken() { // TODO: Need a try/catch here for currentUser being null
+  async _loadToken() { // TODO: Need a try/catch here for currentUser being null
     global.SolidAPI = new SolidAPIService(null)
 
 	const firebaseToken = await firebase.auth().currentUser.getIdToken()
@@ -132,17 +134,27 @@ export default class AppRenderer extends React.Component {
 	})
   }
 
-  render() {
-    return (
-      <SocketProvider socket={
-        io.connect(global.SERVER_URL, {
-          query: {token: this.state.token},
-          transports: ['websocket'],
-          reconnectionAttempts: 15
-        })
-      }>
-        <App />
-      </SocketProvider>
-    )
-  }
+	_connectSocket() {
+		// try {
+		// 	this.setState({
+		// 		socket: 
+		// 	})
+		// } catch(err) {
+		// 	console.log(err)
+		// }
+	}
+
+	render() {
+    	return (
+      		<SocketProvider socket={
+				io.connect(global.SERVER_URL, {
+					query: {token: this.state.token},
+					transports: ['websocket'],
+					reconnectionAttempts: 15
+				})
+			  }>
+        		<App />
+      		</SocketProvider>
+    	)
+  	}
 }

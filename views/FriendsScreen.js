@@ -32,17 +32,11 @@ class FriendsScreen extends React.Component {
         selectedIndex: 0
     }
 
-    componentDidMount() {
-        const {socket} = this.props
-        if(!!socket) {
-            if(socket.connected) {
-                // socket.emit('bbb')
-                // socket.on('aaa', () => { })
-            }
-            // TODO: Handle socket not being connected
-            // TODO: Handle user contacting me socket
-        }
+    constructor(props){
+        super(props)
+    }
 
+    componentDidMount() {
         AsyncStorage.getItem("user")
            .then((data) => {
                 const user = JSON.parse(data)
@@ -62,12 +56,29 @@ class FriendsScreen extends React.Component {
                     }
                 })
             })
+
+        this._handleSockets()
+    }
+
+    _handleSockets(){
+        this.props.socket
+            .on("connect", (data) => console.log("connected to socket server"))
+            .on("requestForKitchen", (data) => {
+                // TODO: Ask before
+                console.log("req4kitchen")
+                this.props.navigation.navigate("LiveKitchen", {
+                    user: this.state.user,
+                    recipe: data.recipe,
+                    room_id: data.room_id,
+                    call_data: data.call_data,
+                })
+            })
     }
 
     render() {
         return (
             <SafeAreaView style={[styles.container]}>
-                <Text style={[styles.text, styles.textCenter]}>{this.state.user.displayname} ({this.state.user.username})</Text>
+                <Text style={[styles.text, styles.textCenter]}>{this.props.socket.id} |{this.state.user.displayname} ({this.state.user.username})</Text>
                 <View style={{flex: 1}}>
                     <SegmentedControlTab
                         values={["My friends", "Pending requests"/*, "Search"*/]}

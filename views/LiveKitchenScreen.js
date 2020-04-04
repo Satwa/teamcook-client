@@ -23,6 +23,8 @@ import {withSocketContext} from '../providers/SocketProvider'
 import PrimaryButton from './components/PrimaryButton'
 import SecondaryButton from './components/SecondaryButton'
 import {Icon} from 'react-native-eva-icons'
+import 'react-native-get-random-values'
+import {v4 as uuidv4} from 'uuid'
 
 class LiveKitchenScreen extends React.Component{
 
@@ -38,6 +40,9 @@ class LiveKitchenScreen extends React.Component{
     peerConnection = new RTCPeerConnection(this.configuration)
 
     componentDidMount() {
+        // TODO: Handle socket not being connected
+        // TODO: Handle user contacting me socket
+
         this.setState({
             user: this.props.navigation.getParam("user"),
             friend: this.props.navigation.getParam("friend"),
@@ -50,16 +55,67 @@ class LiveKitchenScreen extends React.Component{
 
         this._startLocalStream()
 
-        this.peerConnection.createOffer().then(desc => {
-            this.peerConnection.setLocalDescription(desc).then(() => {
-                console.log(this.peerConnection.localDescription)
-                // Send this.peerConnection.localDescription to peer
+        this.props.socket.on("newUserInKitchen", (data) => {
+            console.log("new user in kitchen")
+            console.log(data)
+            this.peerConnection.setRemoteDescription(new RTCSessionDescription(data.call_data.sdp))
+            this.setState({
+                remoteStream: this.peerConnection.getRemoteStreams()[0].toURL()
             })
         })
+        this.props.socket.on("kitchenNewCandidate", (data) => {
+            this.peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate))
+        })
 
-        this.peerConnection.onicecandidate = function(event) {
-            // send event.candidate to peer
+        const room_id = uuidv4()
+
+        if(!this.props.navigation.getParam("call_data")){ // There is not call_id param, this is the host
+            console.log("Host")
+            this.peerConnection.createOffer().then(description => {
+                this.peerConnection.setLocalDescription(description).then(() => {
+                    this.props.socket.emit("joinKitchen", {
+                        call_data: description, 
+                        room_id: room_id, 
+                        user_id: this.state.friend.authID, 
+                        recipe: this.state.recipe
+                    })
+                })
+            })
+        }else{ // Nothing is defined, this is an "invitee"
+            console.log("Invitee")
+            // Fetch from room
+            this.peerConnection.setRemoteDescription(new RTCSessionDescription(this.props.navigation.getParam("call_data"))).then(() => {
+                if(this.peerConnection.remoteDescription.type == "offer"){
+                    this.peerConnection.createAnswer((description) => {
+                        this.peerConnection.setLocalDescription(description).then(() => {
+                            console.log("setRemoteStream")
+                            this.setState({
+                                remoteStream: this.peerConnection.getRemoteStreams()[0].toURL()
+                            })
+                            this.props.socket.emit("joinKitchen", {
+                                call_data: description,
+                                room_id: this.props.navigation.getParam("room_id"),
+                                user_id: null,
+                                recipe: null
+                            })
+                        }).catch((err) => console.log(err))
+                    }).catch((err) => console.log(err))
+                }  
+            }).catch((err) => console.log(err))
         }
+
+        this.peerConnection.onicecandidate = (_event) => {
+            console.log("ice candidate")
+            socket.emit("kitchenNewCandidate", { 
+                candidate: _event.candidate, 
+                room_id: this.props.navigation.getParam("room_id") !== undefined ? this.props.navigation.getParam("room_id") : room_id
+            })
+            // _event.candidate
+        }
+    }
+
+    componentWillUnmount() {
+
     }
 
 
@@ -94,7 +150,7 @@ class LiveKitchenScreen extends React.Component{
                         // scrollEnabled={false}
                         data={this.state.recipe.steps}
                         // ref={ref => this.stepsRef = ref}
-                        keyExtractor={item => item.index}
+                        keyExtractor={item => uuidv4()}
                         style={{flex: 1}}
                         renderItem={({item, index}) => (
                             <View style={{ marginTop: '25%', justifyContent: 'center', alignItems: 'center' }}>
@@ -123,7 +179,6 @@ class LiveKitchenScreen extends React.Component{
 
     async _startLocalStream(){
         mediaDevices.enumerateDevices().then(sourceInfos => {
-            console.log(sourceInfos)
             let videoSourceId;
             for(let i = 0;i < sourceInfos.length;i++) {
                 const sourceInfo = sourceInfos[i]

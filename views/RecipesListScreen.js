@@ -44,6 +44,7 @@ class RecipesListScreen extends React.Component {
                 {this.state.showDetails !== null && (<Modal
                     animationType="none"
                     transparent
+                    autoCorrect={false}
                     onRequestClose={() => {
                         this.setState({
                             showDetails: null
@@ -127,7 +128,6 @@ class RecipesListScreen extends React.Component {
                                                 recipe: item
                                             })
                                         }
-                                        console.log("Go to live")
                                     }} 
                                     onDetails={() => {
                                         if(!item.ingredients){ // Get recipe data if not in state
