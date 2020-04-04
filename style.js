@@ -72,7 +72,32 @@ const styles = StyleSheet.create({
     },
     recipeCardTextDescription: {
         marginTop: 20
-    }
+    },
+    modalBackground: {
+        flex: 1,
+        alignItems: 'center',
+        flexDirection: 'column',
+        justifyContent: 'space-around',
+        backgroundColor: '#00000040'
+    },
+    activityIndicatorWrapper: {
+        backgroundColor: '#FFFFFF',
+        height: 100,
+        width: 100,
+        borderRadius: 10,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-around'
+    },
+    scrollViewWrapper: {
+        backgroundColor: '#FFFFFF',
+        height: '80%',
+        width: '90%',
+        borderRadius: 10,
+        display: 'flex',
+        alignItems: 'center',
+        // justifyContent: 'space-around'
+    } 
 })
   
 const buttons = StyleSheet.create({

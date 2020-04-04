@@ -76,7 +76,6 @@ export default class SolidAPIService {
                 }
             })
             const res = await req.json()
-            console.log(res)
 
             return res
         } catch(err) {
@@ -135,7 +134,6 @@ export default class SolidAPIService {
                 body: JSON.stringify({user_id: user_id, type: type})
             })
             const res = await req.json()
-            console.log(res)
 
             return res
         } catch(err) {
@@ -163,7 +161,6 @@ export default class SolidAPIService {
                 body: JSON.stringify({platform: platform, arg: keywords})
             })
             const res = await req.json()
-            console.log(res)
 
             return res
         } catch(err) {
@@ -191,7 +188,6 @@ export default class SolidAPIService {
                 body: JSON.stringify({platform: platform, arg: url})
             })
             const res = await req.json()
-            console.log(res)
 
             return res
         } catch(err) {

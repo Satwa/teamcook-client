@@ -6,6 +6,8 @@ import {
     TextInput,
     Alert,
     Keyboard,
+    Modal,
+    SectionList
 } from 'react-native'
 import SafeAreaView from 'react-native-safe-area-view';
 import AsyncStorage from '@react-native-community/async-storage'
@@ -14,6 +16,7 @@ import {TouchableOpacity} from 'react-native-gesture-handler'
 import {Icon} from 'react-native-eva-icons'
 import Loader from './components/Loader'
 import RecipeCard from './components/RecipeCard'
+import SecondaryButton from './components/SecondaryButton';
 
 class RecipesListScreen extends React.Component {
     state = {
@@ -22,7 +25,8 @@ class RecipesListScreen extends React.Component {
         recipes: [],
         keywords: "",
         searchTimeout: 0,
-        loading: false
+        loading: false,
+        showDetails: null
     }
 
     componentDidMount() {
@@ -36,6 +40,39 @@ class RecipesListScreen extends React.Component {
         return (
             <SafeAreaView style={[styles.container]}>
                 <Loader loading={this.state.loading} />
+
+                {this.state.showDetails !== null && (<Modal
+                    animationType="none"
+                    transparent
+                    onRequestClose={() => {
+                        this.setState({
+                            showDetails: null
+                        })
+                    }}
+                >
+                    <SafeAreaView style={[styles.modalBackground]}>
+                        <View style={styles.scrollViewWrapper}>
+
+                            <SectionList
+                                style={{flex: 1, flexGrow: 1, width: '90%'}}
+                                sections={[
+                                    {title: 'Ingredients', data: this.state.recipes[this.state.showDetails].ingredients},
+                                    {title: 'Steps', data: this.state.recipes[this.state.showDetails].steps},
+                                ]}
+                                renderItem={({item}) => (
+                                    <View style={{flex: 1, flexDirection: 'row'}}>
+                                        <Text style={[styles.cardText, styles.bold]}>{'\u2022'}</Text>
+                                        <Text style={[styles.cardText, styles.cardTextDescription, {flex: 1, paddingLeft: 5}]}>{item}</Text>
+                                    </View>
+                                )}
+                                renderSectionHeader={({section}) => <Text style={[styles.cardText, styles.bold, { paddingBottom: 10, paddingTop: 10, backgroundColor: 'white' }]}>{section.title}</Text>}
+                                keyExtractor={(item, index) => index}
+                            />  
+                            <SecondaryButton text="Close" onPress={() => this.setState({showDetails: null})} />
+                        </View>
+                    </SafeAreaView>
+                </Modal>)}
+
                 <View style={{flex: 1}}>
                     <View>
                         <Text style={[styles.title, colors.title, {padding: 10}]}>Cook with {this.state.friend.displayname}</Text>
@@ -73,7 +110,27 @@ class RecipesListScreen extends React.Component {
                             return (
                                 <RecipeCard 
                                     recipe={item}
-                                    onPress={() => console.log("Pressed user card")} 
+                                    onPress={() => {
+                                        // item.url => recipe url
+                                        // this.state.friend => user to contact
+                                        console.log("Go to live")
+                                    }} 
+                                    onDetails={() => {
+                                        if(!item.ingredients){ // Get recipe data if not in state
+                                            this._getRecipe(item).then(() => {
+                                                this.setState({
+                                                    showDetails: this.state.recipes.findIndex($0 => $0.url == item.url)
+                                                })
+                                            })
+
+                                        }else{
+                                            console.log("ITEM HAS")
+
+                                            this.setState({
+                                                showDetails: this.state.recipes.findIndex($0 => $0.url == item.url)
+                                            })
+                                        }
+                                    }}
                                 />
                             )
                         }}
@@ -111,6 +168,36 @@ class RecipesListScreen extends React.Component {
                 }
             }, 400) // Search when inactive for 400ms
         })
+    }
+
+    async _getRecipe(item) {
+        try {
+            this.setState({
+                loading: true
+            })
+
+            const query = await global.SolidAPI.recipeDetails(item.url)
+    
+            const _item = this.state.recipes.findIndex($0 => $0.url == item.url)
+            const _recipes = this.state.recipes.slice(0)
+    
+            _recipes[_item] = {...item, ...query}
+    
+            this.setState({
+                loading: false,
+                recipes: _recipes
+            })
+            return query
+        }catch(err){
+            Alert.alert(
+                'Error',
+                'Something wrong is happening on our side, please try again!',
+                [
+                    {text: 'OK', onPress: () => this.setState({isRefreshing: false})},
+                ],
+                {cancelable: false}
+            )
+        }
     }
 }
 

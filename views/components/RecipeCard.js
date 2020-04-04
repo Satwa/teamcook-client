@@ -22,8 +22,6 @@ export default class RecipeCard extends React.Component {
     }
 
     _onPress(){
-        this.props.onPress()
-
         this.setState({
             unfolded: !this.state.unfolded
         })
@@ -53,9 +51,10 @@ export default class RecipeCard extends React.Component {
                 {this.state.unfolded && (
                     <>
                         <Text style={[styles.cardText, styles.cardTextDescription, styles.recipeCardTextDescription]}>{this.props.recipe.description}</Text>
-                        <SecondaryButton text="Go to the kitchen" onPress={() => { 
-                            console.log("CLICKED")
-                        }} />
+                        <View style={{ flexDirection: 'row' }}>
+                            <SecondaryButton text="Get details"  onPress={this.props.onDetails} style={{ flex: 1, borderRightWidth: 1, borderRightColor: colors.text.color }}/>
+                            <SecondaryButton text="Go to the kitchen" onPress={this.props.onPress} style={{ flex: 1 }}/>
+                        </View>
                     </>
                 )}
             </TouchableOpacity>
