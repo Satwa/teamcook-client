@@ -33,76 +33,54 @@ const AuthStack = createStackNavigator({
   SignIn: SignInScreen, 
   PhoneAuth: PhoneAuthScreen
 })
-const AppStack = createBottomTabNavigator({
-	FriendStack: createStackNavigator({
-	  	FriendsScreen: {
-			screen: FriendsScreen,
-			navigationOptions: {
-				header: null
-			}
-	  	},
-	  	AddFriend: {
-			screen: AddFriendScreen,
-			navigationOptions: {
-				headerTintColor: colors.title.color,
-				headerStyle: {
-					borderBottomColor: colors.background.backgroundColor,
-					backgroundColor: colors.background.backgroundColor
-				},
-			}
-		},
-		RecipesList: {
-			screen: RecipesListScreen,
-			navigationOptions: {
-				headerTintColor: colors.title.color,
-				headerStyle: {
-					borderBottomColor: colors.background.backgroundColor,
-					backgroundColor: colors.background.backgroundColor
-				},
-			}
-		},
-		LiveKitchen: {
-			screen: LiveKitchenScreen,
-			navigationOptions: { // Hide? Make view as a fullscreen modal?
-				mode: 'modal',
-				headerTintColor: colors.title.color,
-				headerStyle: {
-					borderBottomColor: colors.background.backgroundColor,
-					backgroundColor: colors.background.backgroundColor
-				},
-			}
-		}
-	}, {
+const AppStack = createStackNavigator({
+	FriendsScreen: {
+		screen: FriendsScreen,
 		navigationOptions: {
-			mode: 'modal',
-			// header: null,
-			headerTintColor: colors.secondary.color,
+			header: null
+		}
+	},
+	AddFriend: {
+		screen: AddFriendScreen,
+		navigationOptions: {
+			headerTintColor: colors.title.color,
 			headerStyle: {
+				borderBottomColor: colors.background.backgroundColor,
 				backgroundColor: colors.background.backgroundColor
 			},
-			tabBarIcon: ({tintColor}) => <Icon name="profile" color={tintColor} />,
 		}
-  	}),
-  	ChatStack: createStackNavigator({
-    	ChatListScreen: {screen: ChatListScreen},
-    	ChatScreen: {screen: ChatScreen},
-  	}, {
-    	navigationOptions: {
-      		tabBarIcon: ({tintColor}) => <Icon name="chat" color={tintColor} />,
-    	}
-  	})
-	}, {
-  	tabBarOptions: {
-    	showLabel: false,
-		activeTintColor: 'red',
-		style: {
-			borderTopColor: "transparent",
-			textAlignVertical: 'center'
+	},
+	RecipesList: {
+		screen: RecipesListScreen,
+		navigationOptions: {
+			headerTintColor: colors.title.color,
+			headerStyle: {
+				borderBottomColor: colors.background.backgroundColor,
+				backgroundColor: colors.background.backgroundColor
+			},
+		}
+	},
+	LiveKitchen: {
+		screen: LiveKitchenScreen,
+		navigationOptions: { // Hide? Make view as a fullscreen modal?
+			mode: 'modal',
+			headerTintColor: colors.title.color,
+			headerStyle: {
+				borderBottomColor: colors.background.backgroundColor,
+				backgroundColor: colors.background.backgroundColor
+			},
+		}
+	}
+}, {
+	navigationOptions: {
+		mode: 'modal',
+		// header: null,
+		headerTintColor: colors.secondary.color,
+		headerStyle: {
+			backgroundColor: colors.background.backgroundColor
 		},
-		tabStyle: {
-			iconInsets: {top: 0, left: 0, bottom: 0, right: 0},
-		}
-  	}
+		tabBarIcon: ({tintColor}) => <Icon name="profile" color={tintColor} />,
+	},
 })
 
 
@@ -145,7 +123,7 @@ export default class AppRenderer extends React.Component {
   }
 
   componentDidMount() {
-    this.loadToken()
+	this.loadToken()
   }
 
   async loadToken() { // TODO: Need a try/catch here for currentUser being null
@@ -157,13 +135,13 @@ export default class AppRenderer extends React.Component {
 
     this.setState({
       token: firebaseToken
-    })
+	})
   }
 
   render() {
     return (
       <SocketProvider socket={
-        io(global.SERVER_URL, {
+        io.connect(global.SERVER_URL, {
           query: {token: this.state.token},
           transports: ['websocket'],
           reconnectionAttempts: 15
