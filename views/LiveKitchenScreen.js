@@ -60,21 +60,41 @@ class LiveKitchenScreen extends React.Component{
 
         // TODO: Check si recipe contient ou pas .ingredients & .steps
         // TODO: Loading modal qui affiche un msg d'avancement (Downloading recipe, Waiting for @user to connect, Waiting for @user to join the kitchen, Connecting...)
+        const room_id = uuidv4()
 
         if(!!this.props.socket){
             if(this.props.socket.connected){
-                this.props.socket.on("newUserInKitchen", (data) => {
-                    console.log("new user in kitchen")
-                    this.peerConnection.setRemoteDescription(new RTCSessionDescription(data.call_data)).catch((err) => console.log(err))
-                })
-                this.props.socket.on("kitchenNewCandidate", (data) => {
-                    this.peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate)).catch((err) => console.log(err))
-                })
+                this.props.socket
+                    .on("newUserInKitchen", (data) => {
+                        console.log("new user in kitchen")
+                        this.peerConnection.setRemoteDescription(new RTCSessionDescription(data.call_data)).catch((err) => console.log(err))
+                    })
+                    .on("kitchenNewCandidate", (data) => {
+                        this.peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate)).catch((err) => console.log(err))
+                    })
+                    .on("renegotiateKitchen", async (data) => {
+                        this.peerConnection.setRemoteDescription(new RTCSessionDescription(data.call_data)).then(() => {
+                            if(this.peerConnection.remoteDescription.type == "offer") {
+                                this.peerConnection.createAnswer().then((description) => {
+                                    this.peerConnection.setLocalDescription(description).then(() => {
+                                        this.props.socket.emit("renegotiatedKitchen", {
+                                            room_id: this.props.navigation.getParam("room_id") !== undefined ? this.props.navigation.getParam("room_id") : room_id,
+                                            call_data: this.peerConnection.localDescription
+                                        })
+                                    }).catch((err) => console.log(err))
+                                }).catch((err) => console.log(err))
+                            }
+                        }).catch((err) => console.log(err))
+                    })
+                    .on("renegotiatedKitchen", async (data) => {
+                        try{
+                            await this.peerConnection.setRemoteDescription(new RTCSessionDescription(data.call_data))
+                        }catch(err){
+                            console.log(err)
+                        }
+                    })
             }
         }
-
-
-        const room_id = uuidv4()
 
         this._startLocalStream().then(() => {
             if(!this.props.navigation.getParam("call_data")){ // There is not call_id param, this is the host
@@ -107,12 +127,10 @@ class LiveKitchenScreen extends React.Component{
             }
     
             this.peerConnection.onicecandidate = (_event) => {
-                console.log("ice candidate")
-                socket.emit("kitchenNewCandidate", { 
+                this.props.socket.emit("kitchenNewCandidate", { 
                     candidate: _event.candidate, 
                     room_id: this.props.navigation.getParam("room_id") !== undefined ? this.props.navigation.getParam("room_id") : room_id
                 })
-                // _event.candidate
             }
             this.peerConnection.onaddstream = (_event) => {
                 console.log("adding stream")
@@ -122,13 +140,20 @@ class LiveKitchenScreen extends React.Component{
                     })
                 }
             }
+            this.peerConnection.onnegotiationneeded = async (_event) => {
+                if(this.peerConnection.localDescription.type !== "offer") return 
+
+                this.peerConnection.createOffer().then(description => {
+                    this.peerConnection.setLocalDescription(description).then(() => {
+                        this.props.socket.emit("renegotiateKitchen", {
+                            room_id: this.props.navigation.getParam("room_id") !== undefined ? this.props.navigation.getParam("room_id") : room_id,
+                            call_data: description
+                        })
+                    }).catch((err) => console.log(err))
+                }).catch((err) => console.error(err))
+            }
         }).catch((err) => console.error(err))
     }
-
-    componentWillUnmount() {
-
-    }
-
 
     render(){
         return(
@@ -140,6 +165,7 @@ class LiveKitchenScreen extends React.Component{
                             mirror
                             objectFit='cover'
                             style={{flex: 1}}
+                            zOrder={1}
                         /> 
                     )}
                     {this.state.localStream && (
@@ -151,6 +177,7 @@ class LiveKitchenScreen extends React.Component{
                                 {shadowColor: "#000", shadowOffset: { width: 0, height: 2, }, shadowOpacity: .3, shadowRadius: 3.84, elevation: 5},
                                 {flex: 1, position: 'absolute', width: '30%', height: '30%', minHeight: 100, minWidth: 160, bottom: 10, right: 10, borderRadius: 10},
                             ]}
+                            zOrder={2}
                         /> 
                     )}
                 </View>
@@ -189,16 +216,18 @@ class LiveKitchenScreen extends React.Component{
     }
 
     async _startLocalStream(){
-        mediaDevices.enumerateDevices().then(sourceInfos => {
-            let videoSourceId;
-            for(let i = 0;i < sourceInfos.length;i++) {
-                const sourceInfo = sourceInfos[i]
-                if(sourceInfo.kind == "videoinput" && sourceInfo.facing == "front") { //(isFront ? "front" : "environment")) {
-                    videoSourceId = sourceInfo.deviceId
-                }
-            }
+        const sourceInfos = await mediaDevices.enumerateDevices()
 
-            mediaDevices.getUserMedia({
+        let videoSourceId;
+        for(let i = 0;i < sourceInfos.length;i++) {
+            const sourceInfo = sourceInfos[i]
+            if(sourceInfo.kind == "videoinput" && sourceInfo.facing == "front") { //(isFront ? "front" : "environment")) {
+                videoSourceId = sourceInfo.deviceId
+            }
+        }
+
+        try{
+            const stream = await mediaDevices.getUserMedia({
                 audio: true,
                 video: {
                     mandatory: {
@@ -210,19 +239,14 @@ class LiveKitchenScreen extends React.Component{
                     optional: (videoSourceId ? [{sourceId: videoSourceId}] : [])
                 }
             })
-                .then(stream => {
-                    this.setState({
-                        localStream: stream
-                    })
-                    this.peerConnection.addStream(stream)
-                    console.log("local stream ready")
-                    // Got stream!
-                })
-                .catch(error => {
-                    console.log(error)
-                    // Log error
-                })
-        })
+            this.setState({
+                localStream: stream
+            })
+            this.peerConnection.addStream(stream)
+        }catch(error) {
+            console.log(error)
+
+        }
     }
 }
 
