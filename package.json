@@ -31,7 +31,7 @@
     "react-native-svg": "^12.0.3",
     "react-native-video": "^4.4.5",
     "react-native-webrtc": "^1.75.3",
-    "react-navigation": "^4.0.10",
+    "react-navigation": "^4.4.0",
     "react-navigation-stack": "^1.10.3",
     "react-navigation-tabs": "^2.6.2",
     "relative-date": "^1.1.3",
